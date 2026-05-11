@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL SmartLog v2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FFBL SmartLog Mobile</title>
     <style>
         :root {
             --primary: #1a73e8;
@@ -11,70 +11,344 @@
             --text: #202124;
             --accent: #fbbc04;
             --border: #dadce0;
+            --success: #1e8e3e;
+            --danger: #d93025;
         }
 
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Roboto, -apple-system, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            padding-bottom: 80px;
+            -webkit-tap-highlight-color: transparent;
+        }
         
-        /* Modern Header */
-        header { background: white; padding: 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .branding { display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 800; font-size: 22px; color: var(--primary); letter-spacing: -1px; }
-        .meta-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .meta-input { border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; outline: none; }
-
-        /* The Transposed Engine */
-        .viewport { overflow-x: auto; display: flex; padding: 10px 0; }
+        /* Header */
+        header { 
+            background: white; 
+            padding: 16px; 
+            border-bottom: 1px solid var(--border); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .branding { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .logo { 
+            font-weight: 800; 
+            font-size: 20px; 
+            color: var(--primary); 
+            letter-spacing: -0.5px; 
+        }
+        .logo-sub {
+            color: var(--text); 
+            font-weight: 400; 
+            font-size: 14px;
+        }
+        .unit-badge {
+            font-size: 10px;
+            text-align: right;
+            line-height: 1.3;
+            color: #5f6368;
+        }
         
-        /* Checklist Labels (Fixed on Left) */
-        .labels-column { 
-            position: sticky; left: 0; z-index: 10; 
-            background: var(--bg); min-width: 150px; 
-            display: flex; flex-direction: column; padding-left: 10px;
+        .meta-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px;
         }
-        .label-cell { 
-            height: 50px; display: flex; align-items: center; 
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
-            color: #5f6368; border-bottom: 1px solid transparent;
+        .meta-input { 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 12px; 
+            font-size: 14px; 
+            outline: none;
+            background: white;
+        }
+        .meta-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
         }
 
-        /* Pump Data Column */
-        .pump-column { 
-            min-width: 140px; margin: 0 5px; background: white; 
-            border-radius: 12px; border: 1px solid var(--border); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column;
+        /* Pump Cards - Vertical Layout */
+        .pumps-container {
+            padding: 12px;
+        }
+        
+        .pump-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             overflow: hidden;
-        }
-        .pump-header { 
-            background: var(--accent); padding: 10px; text-align: center; 
-            font-weight: bold; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        .pump-header input { 
-            width: 90%; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); 
-            text-align: center; font-weight: bold; border-radius: 4px; padding: 4px;
+            border: 1px solid var(--border);
         }
         
-        .input-cell { 
-            height: 50px; display: flex; align-items: center; 
-            justify-content: center; border-bottom: 1px solid #f1f3f4; padding: 0 8px;
+        .pump-card-header {
+            background: linear-gradient(135deg, var(--accent) 0%, #ffa000 100%);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .input-cell:last-child { border-bottom: none; }
         
+        .pump-number {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tag-input {
+            width: 100%;
+            background: white;
+            border: none;
+            padding: 10px 12px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            margin-top: 8px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .delete-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: rgba(0,0,0,0.6);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .pump-card-body {
+            padding: 16px;
+        }
+        
+        .question-row {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .question-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .question-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6368;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .question-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 11px;
+            line-height: 18px;
+            margin-right: 6px;
+            font-weight: 700;
+        }
+        
+        /* Form Controls */
         select, input[type="text"], input[type="number"] {
-            width: 100%; border: 1px solid transparent; padding: 8px;
-            font-size: 14px; background: #f1f3f4; border-radius: 6px; outline: none;
+            width: 100%;
+            border: 1px solid var(--border);
+            padding: 12px;
+            font-size: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235f6368' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+        
+        select:focus, input:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+        }
+        
+        /* Pill Buttons for Yes/No */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .pill-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: #f8f9fa;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
             transition: all 0.2s;
         }
-        select:focus, input:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
-
-        /* Floating Action Buttons */
-        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .fab { 
-            width: 56px; height: 56px; border-radius: 28px; border: none; 
-            color: white; font-size: 24px; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+        
+        .pill-btn.active-yes {
+            background: #e8f5e9;
+            border-color: var(--success);
+            color: var(--success);
         }
-        .btn-add { background: var(--primary); }
-        .btn-send { background: #1e8e3e; }
+        
+        .pill-btn.active-no {
+            background: #fce4ec;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .pill-btn.active-normal {
+            background: #e3f2fd;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .pill-btn.active-other {
+            background: #fff3e0;
+            border-color: #f57c00;
+            color: #f57c00;
+        }
+
+        /* Bottom Actions */
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 90;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .btn-add {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-add:active {
+            transform: scale(0.98);
+            background: #1557b0;
+        }
+        
+        .btn-submit {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-submit:active {
+            transform: scale(0.98);
+            background: #188038;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5f6368;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .empty-subtext {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #323232;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* Pump Counter Badge */
+        .pump-counter {
+            position: sticky;
+            top: 73px;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 99;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
     </style>
 </head>
@@ -82,105 +356,300 @@
 
 <header>
     <div class="branding">
-        <div class="logo">FFBL <span style="color:var(--text); font-weight:400; font-size:16px;">SmartLog</span></div>
-        <div style="font-size: 10px; text-align:right;">MAINTENANCE<br>UNIT-AREA</div>
+        <div>
+            <div class="logo">FFBL <span class="logo-sub">SmartLog</span></div>
+        </div>
+        <div class="unit-badge">MAINTENANCE<br>UNIT-AREA</div>
     </div>
-    <div class="meta-container">
+    <div class="meta-grid">
         <input type="date" id="dated" class="meta-input">
         <input type="text" id="plant" class="meta-input" placeholder="Plant Area">
-        <input type="text" id="tech" class="meta-input" placeholder="Tech Name">
+        <input type="text" id="tech" class="meta-input" placeholder="Technician">
         <input type="text" id="shift" class="meta-input" placeholder="Shift">
     </div>
 </header>
 
-<div class="viewport">
-    <div class="labels-column">
-        <div class="label-cell" style="height:45px;">Equipment ID</div>
-        <div class="label-cell">1. Oil Lvl Inc?</div>
-        <div class="label-cell">2. Qty Drained</div>
-        <div class="label-cell">3. Color</div>
-        <div class="label-cell">4. Impurities</div>
-        <div class="label-cell">5. Supply Line</div>
-        <div class="label-cell">7. Oil Housing</div>
-        <div class="label-cell">8. Oil Type</div>
-        <div class="label-cell">10. Breather</div>
-        <div class="label-cell">11. Qty New</div>
-        <div class="label-cell">12. H-Keeping</div>
-        <div class="label-cell">13. Dead Plug</div>
-        <div class="label-cell">Comments</div>
-    </div>
+<div class="pump-counter" id="pumpCounter">0 Pumps Added</div>
 
-    <div id="pumpContainer" style="display:flex;">
-        <div class="pump-column">
-            <div class="pump-header"><input type="text" class="t-tag" placeholder="GT-1001-A"></div>
-            <div class="input-cell"><select class="t-l1"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l2" placeholder="Ltr"></div>
-            <div class="input-cell"><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l4" placeholder="None"></div>
-            <div class="input-cell"><select class="t-l5"><option>Open</option><option>Chocked</option></select></div>
-            <div class="input-cell"><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l8" placeholder="Type"></div>
-            <div class="input-cell"><select class="t-l10"><option>OK</option><option>Chocked</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l11" placeholder="Ltr"></div>
-            <div class="input-cell"><select class="t-l12"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><select class="t-l13"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><input type="text" class="t-comment"></div>
-        </div>
+<div class="pumps-container" id="pumpsContainer">
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon">⚙️</div>
+        <div class="empty-text">No pumps added yet</div>
+        <div class="empty-subtext">Tap "Add Pump" below to start</div>
     </div>
 </div>
 
-<div class="fab-container">
-    <button class="fab btn-add" onclick="addNewColumn()" title="Add Pump">+</button>
-    <button class="fab btn-send" onclick="submitLog()" title="Send Batch">✓</button>
+<div class="bottom-actions">
+    <button class="btn btn-add" onclick="addPump()">
+        <span style="font-size:20px;">+</span> Add Pump
+    </button>
+    <button class="btn btn-submit" onclick="submitLog()">
+        <span style="font-size:18px;">✓</span> Submit
+    </button>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+    let pumpCount = 0;
     document.getElementById('dated').valueAsDate = new Date();
 
-    function addNewColumn() {
-        const container = document.getElementById('pumpContainer');
-        const firstCol = container.querySelector('.pump-column');
-        const newCol = firstCol.cloneNode(true);
-        
-        // Clear all inputs in cloned column
-        newCol.querySelectorAll('input').forEach(i => i.value = "");
-        newCol.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-        
-        container.appendChild(newCol);
-        // Scroll right to the new column
-        newCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    function submitLog() {
-        const columns = document.querySelectorAll('.pump-column');
-        let batch = [];
+    function updateCounter() {
+        const count = document.querySelectorAll('.pump-card').length;
+        document.getElementById('pumpCounter').textContent = `${count} Pump${count !== 1 ? 's' : ''} Added`;
+        
+        // Show/hide empty state
+        const emptyState = document.getElementById('emptyState');
+        emptyState.style.display = count === 0 ? 'block' : 'none';
+    }
 
-        columns.forEach(col => {
-            let tag = col.querySelector('.t-tag').value;
-            if(tag) {
+    function addPump() {
+        pumpCount++;
+        const container = document.getElementById('pumpsContainer');
+        
+        const card = document.createElement('div');
+        card.className = 'pump-card';
+        card.innerHTML = `
+            <div class="pump-card-header">
+                <div style="flex:1;">
+                    <div class="pump-number">Pump ${pumpCount}</div>
+                    <input type="text" class="tag-input" placeholder="Equipment ID (e.g. GT-1001-A)" data-field="tag">
+                </div>
+                <button class="delete-btn" onclick="deletePump(this)">×</button>
+            </div>
+            <div class="pump-card-body">
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">1</span>Oil level increased before inspection?
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Yes')">Yes</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'No')">No</div>
+                    </div>
+                    <input type="hidden" data-field="l1" value="Yes">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">2</span>Quantity drained (litres)
+                    </label>
+                    <input type="text" data-field="l2" placeholder="Enter quantity">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">3</span>Color of oil drained
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Normal')">Normal</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'Black')">Black</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'Cloudy')">Cloudy</div>
+                    </div>
+                    <input type="hidden" data-field="l3" value="Normal">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">4</span>Impurities found
+                    </label>
+                    <input type="text" data-field="l4" placeholder="e.g. None, Sand, Metal">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">5</span>Oil supply line condition
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Open')">Open</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'Chocked')">Chocked</div>
+                    </div>
+                    <input type="hidden" data-field="l5" value="Open">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">7</span>Oil housing
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Cleaned')">Cleaned</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'Flushed')">Flushed</div>
+                    </div>
+                    <input type="hidden" data-field="l7" value="Cleaned">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">8</span>Oil type used
+                    </label>
+                    <input type="text" data-field="l8" placeholder="e.g. Mobil DTE 24">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">10</span>Casing breather
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'OK')">OK</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'Chocked')">Chocked</div>
+                    </div>
+                    <input type="hidden" data-field="l10" value="OK">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">11</span>Quantity of new oil (litres)
+                    </label>
+                    <input type="text" data-field="l11" placeholder="Enter quantity">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">12</span>Housekeeping done?
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Yes')">Yes</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'No')">No</div>
+                    </div>
+                    <input type="hidden" data-field="l12" value="Yes">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">
+                        <span class="question-number">13</span>Dead plug installed?
+                    </label>
+                    <div class="pill-group">
+                        <div class="pill-btn" onclick="selectPill(this, 'Yes')">Yes</div>
+                        <div class="pill-btn" onclick="selectPill(this, 'No')">No</div>
+                    </div>
+                    <input type="hidden" data-field="l13" value="Yes">
+                </div>
+
+                <div class="question-row">
+                    <label class="question-label">Additional comments</label>
+                    <input type="text" data-field="comment" placeholder="Any observations...">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+        updateCounter();
+        
+        // Scroll to new card
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        showToast('Pump added');
+    }
+
+    function selectPill(element, value) {
+        // Remove active class from siblings
+        const siblings = element.parentElement.querySelectorAll('.pill-btn');
+        siblings.forEach(s => {
+            s.classList.remove('active-yes', 'active-no', 'active-normal', 'active-other');
+        });
+        
+        // Add appropriate active class
+        if (value === 'Yes') element.classList.add('active-yes');
+        else if (value === 'No') element.classList.add('active-no');
+        else if (value === 'Normal' || value === 'Open' || value === 'OK' || value === 'Cleaned') {
+            element.classList.add('active-normal');
+        } else {
+            element.classList.add('active-other');
+        }
+        
+        // Update hidden input
+        const hiddenInput = element.parentElement.nextElementSibling;
+        if (hiddenInput && hiddenInput.tagName === 'INPUT') {
+            hiddenInput.value = value;
+        }
+    }
+
+    function deletePump(button) {
+        if (confirm('Delete this pump entry?')) {
+            button.closest('.pump-card').remove();
+            updateCounter();
+            showToast('Pump deleted');
+        }
+    }
+
+    function collectData() {
+        const cards = document.querySelectorAll('.pump-card');
+        const batch = [];
+        
+        cards.forEach(card => {
+            const tag = card.querySelector('[data-field="tag"]').value.trim();
+            if (tag) {
                 batch.push({
                     Tag: tag,
-                    L1: col.querySelector('.t-l1').value,
-                    L2: col.querySelector('.t-l2').value,
-                    L3: col.querySelector('.t-l3').value,
-                    L4: col.querySelector('.t-l4').value,
-                    L5: col.querySelector('.t-l5').value,
-                    L7: col.querySelector('.t-l7').value,
-                    L8: col.querySelector('.t-l8').value,
-                    L10: col.querySelector('.t-l10').value,
-                    L11: col.querySelector('.t-l11').value,
-                    L12: col.querySelector('.t-l12').value,
-                    L13: col.querySelector('.t-l13').value,
-                    Comment: col.querySelector('.t-comment').value
+                    L1: card.querySelector('[data-field="l1"]').value,
+                    L2: card.querySelector('[data-field="l2"]').value,
+                    L3: card.querySelector('[data-field="l3"]').value,
+                    L4: card.querySelector('[data-field="l4"]').value,
+                    L5: card.querySelector('[data-field="l5"]').value,
+                    L7: card.querySelector('[data-field="l7"]').value,
+                    L8: card.querySelector('[data-field="l8"]').value,
+                    L10: card.querySelector('[data-field="l10"]').value,
+                    L11: card.querySelector('[data-field="l11"]').value,
+                    L12: card.querySelector('[data-field="l12"]').value,
+                    L13: card.querySelector('[data-field="l13"]').value,
+                    Comment: card.querySelector('[data-field="comment"]').value
                 });
             }
         });
-
-        if(batch.length === 0) return;
-        const meta = `DATE:${document.getElementById('dated').value}|AREA:${document.getElementById('plant').value}`;
-        const body = `FFBL_MODERN_LOG\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
-        window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
+        
+        return batch;
     }
+
+    function submitLog() {
+        const batch = collectData();
+        
+        if (batch.length === 0) {
+            alert('Please add at least one pump with Equipment ID filled');
+            return;
+        }
+        
+        const date = document.getElementById('dated').value;
+        const plant = document.getElementById('plant').value;
+        const tech = document.getElementById('tech').value;
+        const shift = document.getElementById('shift').value;
+        
+        if (!date || !plant || !tech) {
+            alert('Please fill Date, Plant Area, and Technician fields');
+            return;
+        }
+        
+        const meta = `DATE:${date}|AREA:${plant}|TECH:${tech}|SHIFT:${shift}`;
+        const body = `FFBL SMARTLOG SUBMISSION\n\n${meta}\n\nDATA:\n${JSON.stringify(batch, null, 2)}`;
+        
+        // For now using mailto - replace with actual API endpoint
+        window.location.href = `mailto:javed@example.com?subject=OilLogBatch_${date}&body=${encodeURIComponent(body)}`;
+        
+        showToast('Submitting...');
+    }
+
+    // Initialize with first pill selected in each group
+    function initializePills() {
+        document.querySelectorAll('.pump-card').forEach(card => {
+            card.querySelectorAll('.pill-group').forEach(group => {
+                const firstBtn = group.querySelector('.pill-btn');
+                if (firstBtn) {
+                    const value = firstBtn.textContent;
+                    selectPill(firstBtn, value);
+                }
+            });
+        });
+    }
+
+    // Add first pump on load
+    window.addEventListener('load', () => {
+        // Uncomment to start with one pump pre-added
+        // addPump();
+    });
 </script>
 
 </body>
