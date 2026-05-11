@@ -3,119 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL Transposed Log</title>
+    <title>FFBL SmartLog v2</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 5px; }
-        .wrapper { background: white; border: 1px solid #000; display: flex; flex-direction: column; height: 98vh; }
-        
-        .meta-info { padding: 10px; border-bottom: 2px solid #000; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
-        .meta-info input { border: none; border-bottom: 1px solid #333; width: 100%; }
-
-        /* THE TRANSPOSED TABLE ENGINE */
-        .table-container { overflow-x: auto; flex-grow: 1; }
-        table { border-collapse: collapse; min-width: 100%; }
-        
-        /* Sticky Left Column (The Checklist Items) */
-        th:first-child, td:first-child { 
-            position: sticky; left: 0; background: #343a40; color: white; 
-            z-index: 10; text-align: left; padding: 10px; min-width: 160px; font-size: 11px;
-            border-right: 2px solid #000;
+        :root {
+            --primary: #1a73e8;
+            --bg: #f8f9fa;
+            --text: #202124;
+            --accent: #fbbc04;
+            --border: #dadce0;
         }
 
-        /* Pump Columns */
-        td { border: 1px solid #000; padding: 5px; min-width: 120px; text-align: center; }
-        .pump-header { background: #ffeb3b !important; color: #000 !important; font-weight: bold; }
-
-        input, select { width: 95%; padding: 8px; border: 1px solid #ccc; font-size: 14px; border-radius: 4px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        .btn-group { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 2px solid #000; }
-        .btn { padding: 15px; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .btn-add { background: #28a745; }
-        .btn-send { background: #0056b3; }
+        /* Modern Header */
+        header { background: white; padding: 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .branding { display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-weight: 800; font-size: 22px; color: var(--primary); letter-spacing: -1px; }
+        .meta-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .meta-input { border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; outline: none; }
+
+        /* The Transposed Engine */
+        .viewport { overflow-x: auto; display: flex; padding: 10px 0; }
+        
+        /* Checklist Labels (Fixed on Left) */
+        .labels-column { 
+            position: sticky; left: 0; z-index: 10; 
+            background: var(--bg); min-width: 150px; 
+            display: flex; flex-direction: column; padding-left: 10px;
+        }
+        .label-cell { 
+            height: 50px; display: flex; align-items: center; 
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            color: #5f6368; border-bottom: 1px solid transparent;
+        }
+
+        /* Pump Data Column */
+        .pump-column { 
+            min-width: 140px; margin: 0 5px; background: white; 
+            border-radius: 12px; border: 1px solid var(--border); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .pump-header { 
+            background: var(--accent); padding: 10px; text-align: center; 
+            font-weight: bold; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .pump-header input { 
+            width: 90%; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); 
+            text-align: center; font-weight: bold; border-radius: 4px; padding: 4px;
+        }
+        
+        .input-cell { 
+            height: 50px; display: flex; align-items: center; 
+            justify-content: center; border-bottom: 1px solid #f1f3f4; padding: 0 8px;
+        }
+        .input-cell:last-child { border-bottom: none; }
+        
+        select, input[type="text"], input[type="number"] {
+            width: 100%; border: 1px solid transparent; padding: 8px;
+            font-size: 14px; background: #f1f3f4; border-radius: 6px; outline: none;
+            transition: all 0.2s;
+        }
+        select:focus, input:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+
+        /* Floating Action Buttons */
+        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .fab { 
+            width: 56px; height: 56px; border-radius: 28px; border: none; 
+            color: white; font-size: 24px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+        }
+        .btn-add { background: var(--primary); }
+        .btn-send { background: #1e8e3e; }
+
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <div class="meta-info">
-        <div>Date: <input type="date" id="dated"></div>
-        <div>Area: <input type="text" id="plant" placeholder="Plant Area"></div>
-        <div>Tech: <input type="text" id="tech" placeholder="Name"></div>
-        <div>Shift: <input type="text" id="shift" placeholder="Morning"></div>
+<header>
+    <div class="branding">
+        <div class="logo">FFBL <span style="color:var(--text); font-weight:400; font-size:16px;">SmartLog</span></div>
+        <div style="font-size: 10px; text-align:right;">MAINTENANCE<br>UNIT-AREA</div>
+    </div>
+    <div class="meta-container">
+        <input type="date" id="dated" class="meta-input">
+        <input type="text" id="plant" class="meta-input" placeholder="Plant Area">
+        <input type="text" id="tech" class="meta-input" placeholder="Tech Name">
+        <input type="text" id="shift" class="meta-input" placeholder="Shift">
+    </div>
+</header>
+
+<div class="viewport">
+    <div class="labels-column">
+        <div class="label-cell" style="height:45px;">Equipment ID</div>
+        <div class="label-cell">1. Oil Lvl Inc?</div>
+        <div class="label-cell">2. Qty Drained</div>
+        <div class="label-cell">3. Color</div>
+        <div class="label-cell">4. Impurities</div>
+        <div class="label-cell">5. Supply Line</div>
+        <div class="label-cell">7. Oil Housing</div>
+        <div class="label-cell">8. Oil Type</div>
+        <div class="label-cell">10. Breather</div>
+        <div class="label-cell">11. Qty New</div>
+        <div class="label-cell">12. H-Keeping</div>
+        <div class="label-cell">13. Dead Plug</div>
+        <div class="label-cell">Comments</div>
     </div>
 
-    <div class="table-container">
-        <table id="mainTable">
-            <tr id="row-tag"><td><strong>TAG # / EQUIP ID</strong></td><td class="pump-header"><input type="text" class="t-tag" placeholder="GT-1001-A"></td></tr>
-            <tr><td>1. Oil Level Inc?</td><td><select class="t-l1"><option>Yes</option><option>No</option></select></td></tr>
-            <tr><td>2. Qty Drained (L)</td><td><input type="text" class="t-l2"></td></tr>
-            <tr><td>3. Color</td><td><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></td></tr>
-            <tr><td>4. Impurities</td><td><input type="text" class="t-l4" placeholder="None"></td></tr>
-            <tr><td>5. Supply Line</td><td><select class="t-l5"><option>Open</option><option>Chocked</option></select></td></tr>
-            <tr><td>7. Oil Housing</td><td><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></td></tr>
-            <tr><td>8. Oil Type</td><td><input type="text" class="t-l8" placeholder="VG-68"></td></tr>
-            <tr><td>10. Casing Breather</td><td><select class="t-l10"><option>OK</option><option>Chocked</option></select></td></tr>
-            <tr><td>11. Qty New (L)</td><td><input type="text" class="t-l11"></td></tr>
-            <tr><td>12. Housekeeping</td><td><select class="t-l12"><option>Yes</option><option>No</option></select></td></tr>
-            <tr><td>13. Dead Plug</td><td><select class="t-l13"><option>Yes</option><option>No</option></select></td></tr>
-            <tr><td>Comments</td><td><input type="text" class="t-comment"></td></tr>
-        </table>
+    <div id="pumpContainer" style="display:flex;">
+        <div class="pump-column">
+            <div class="pump-header"><input type="text" class="t-tag" placeholder="GT-1001-A"></div>
+            <div class="input-cell"><select class="t-l1"><option>Yes</option><option>No</option></select></div>
+            <div class="input-cell"><input type="text" class="t-l2" placeholder="Ltr"></div>
+            <div class="input-cell"><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></div>
+            <div class="input-cell"><input type="text" class="t-l4" placeholder="None"></div>
+            <div class="input-cell"><select class="t-l5"><option>Open</option><option>Chocked</option></select></div>
+            <div class="input-cell"><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></div>
+            <div class="input-cell"><input type="text" class="t-l8" placeholder="Type"></div>
+            <div class="input-cell"><select class="t-l10"><option>OK</option><option>Chocked</option></select></div>
+            <div class="input-cell"><input type="text" class="t-l11" placeholder="Ltr"></div>
+            <div class="input-cell"><select class="t-l12"><option>Yes</option><option>No</option></select></div>
+            <div class="input-cell"><select class="t-l13"><option>Yes</option><option>No</option></select></div>
+            <div class="input-cell"><input type="text" class="t-comment"></div>
+        </div>
     </div>
+</div>
 
-    <div class="btn-group">
-        <button class="btn btn-add" onclick="addPumpColumn()">+ ADD PUMP</button>
-        <button class="btn btn-send" onclick="sendBatch()">SEND BATCH</button>
-    </div>
+<div class="fab-container">
+    <button class="fab btn-add" onclick="addNewColumn()" title="Add Pump">+</button>
+    <button class="fab btn-send" onclick="submitLog()" title="Send Batch">✓</button>
 </div>
 
 <script>
     document.getElementById('dated').valueAsDate = new Date();
 
-    function addPumpColumn() {
-        const table = document.getElementById('mainTable');
-        for (let i = 0; i < table.rows.length; i++) {
-            let newCell = table.rows[i].insertCell(-1);
-            let templateCell = table.rows[i].cells[1];
-            newCell.innerHTML = templateCell.innerHTML;
-            // Clear inputs in the new column
-            let input = newCell.querySelector('input');
-            if(input) input.value = "";
-            let select = newCell.querySelector('select');
-            if(select) select.selectedIndex = 0;
-            // Style the header row cell
-            if(i === 0) newCell.className = "pump-header";
-        }
+    function addNewColumn() {
+        const container = document.getElementById('pumpContainer');
+        const firstCol = container.querySelector('.pump-column');
+        const newCol = firstCol.cloneNode(true);
+        
+        // Clear all inputs in cloned column
+        newCol.querySelectorAll('input').forEach(i => i.value = "");
+        newCol.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        
+        container.appendChild(newCol);
+        // Scroll right to the new column
+        newCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
     }
 
-    function sendBatch() {
-        const table = document.getElementById('mainTable');
-        const pumpCount = table.rows[0].cells.length - 1;
+    function submitLog() {
+        const columns = document.querySelectorAll('.pump-column');
         let batch = [];
 
-        for (let col = 1; col <= pumpCount; col++) {
-            let tag = table.rows[0].cells[col].querySelector('input').value;
-            if (tag) {
+        columns.forEach(col => {
+            let tag = col.querySelector('.t-tag').value;
+            if(tag) {
                 batch.push({
                     Tag: tag,
-                    L1: table.rows[1].cells[col].querySelector('select').value,
-                    L2: table.rows[2].cells[col].querySelector('input').value,
-                    L3: table.rows[3].cells[col].querySelector('select').value,
-                    L4: table.rows[4].cells[col].querySelector('input').value,
-                    L5: table.rows[5].cells[col].querySelector('select').value,
-                    L7: table.rows[6].cells[col].querySelector('select').value,
-                    L8: table.rows[7].cells[col].querySelector('input').value,
-                    L10: table.rows[8].cells[col].querySelector('select').value,
-                    L11: table.rows[9].cells[col].querySelector('input').value,
-                    L12: table.rows[10].cells[col].querySelector('select').value,
-                    L13: table.rows[11].cells[col].querySelector('select').value,
-                    Comment: table.rows[12].cells[col].querySelector('input').value
+                    L1: col.querySelector('.t-l1').value,
+                    L2: col.querySelector('.t-l2').value,
+                    L3: col.querySelector('.t-l3').value,
+                    L4: col.querySelector('.t-l4').value,
+                    L5: col.querySelector('.t-l5').value,
+                    L7: col.querySelector('.t-l7').value,
+                    L8: col.querySelector('.t-l8').value,
+                    L10: col.querySelector('.t-l10').value,
+                    L11: col.querySelector('.t-l11').value,
+                    L12: col.querySelector('.t-l12').value,
+                    L13: col.querySelector('.t-l13').value,
+                    Comment: col.querySelector('.t-comment').value
                 });
             }
-        }
+        });
 
         if(batch.length === 0) return;
-        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}`;
-        const body = `FFBL_TRANSPOSED_LOG\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
+        const meta = `DATE:${document.getElementById('dated').value}|AREA:${document.getElementById('plant').value}`;
+        const body = `FFBL_MODERN_LOG\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
         window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
     }
 </script>
