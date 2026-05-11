@@ -3,146 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL Machinery Maintenance</title>
+    <title>FFBL Horizontal Log</title>
     <style>
-        :root { --ffbl-blue: #0056b3; --ffbl-grey: #343a40; --ffbl-border: #000; }
-        body { font-family: sans-serif; background-color: #e9ecef; margin: 0; padding: 10px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; border: 2px solid var(--ffbl-border); }
+        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 5px; }
+        .wrapper { background: white; border: 1px solid #000; overflow: hidden; }
         
-        /* Header Section */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 2px solid var(--ffbl-border); background: #fff; }
-        .header-logo { font-weight: bold; font-size: 24px; color: var(--ffbl-blue); }
-        .header-title { text-align: center; flex-grow: 1; font-size: 14px; font-weight: bold; }
+        /* Header Info */
+        .meta-info { display: flex; flex-wrap: wrap; background: #eee; border-bottom: 2px solid #000; padding: 5px; font-size: 11px; }
+        .meta-info div { margin-right: 15px; margin-bottom: 5px; }
+        .meta-info input { border: none; border-bottom: 1px solid #333; background: transparent; width: 80px; }
+
+        /* THE TABLE SCROLL ENGINE */
+        .table-container { 
+            overflow-x: auto; /* Allows side-to-side swiping */
+            width: 100%;
+            position: relative;
+        }
+
+        table { border-collapse: collapse; min-width: 1200px; /* Forces enough width for columns */ }
         
-        /* Meta Data Section */
-        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--ffbl-border); font-size: 12px; }
-        .meta-grid div { padding: 5px; border: 0.5px solid #ccc; }
-        .meta-grid input { width: 90%; border: none; border-bottom: 1px solid #999; outline: none; }
+        th, td { 
+            border: 1px solid #000; 
+            padding: 8px; 
+            text-align: center; 
+            font-size: 12px; 
+        }
 
-        /* Accordion Styling */
-        .section-header { background: var(--ffbl-grey); color: white; padding: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid #fff; }
-        .section-content { padding: 10px; display: block; border-bottom: 2px solid var(--ffbl-border); }
-        
-        /* Input Cards */
-        .card { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
-        .card label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #444; }
-        .card select, .card input { width: 100%; padding: 8px; border: 1px solid #999; border-radius: 4px; font-size: 16px; }
+        th { background-color: #343a40; color: white; height: 40px; }
 
-        /* Clone/Action Buttons */
-        .btn-group { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; color: white; }
-        .btn-clone { background: #28a745; }
-        .btn-submit { background: var(--ffbl-blue); }
+        /* STICKY COLUMN: This keeps the Tag # visible while swiping */
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #ffeb3b !important; /* Yellow like a highlight */
+            z-index: 2;
+            border-right: 2px solid #000;
+            font-weight: bold;
+            color: #000 !important;
+            min-width: 100px;
+        }
 
-        /* Batch Log Summary */
-        #logSummary { padding: 10px; background: #fff; border-top: 2px solid var(--ffbl-border); }
-        .log-entry { border: 1px solid #ccc; padding: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        input, select { 
+            width: 90%; 
+            padding: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 3px; 
+            font-size: 14px;
+        }
+
+        /* Fixed widths for columns to keep things readable */
+        .col-tag { width: 100px; }
+        .col-small { width: 80px; }
+        .col-med { width: 150px; }
+
+        .btn-add { background: #28a745; color: white; padding: 10px; border: none; margin: 10px; cursor: pointer; width: calc(100% - 20px); font-weight: bold; }
+        .btn-send { background: #0056b3; color: white; padding: 15px; border: none; margin: 10px; cursor: pointer; width: calc(100% - 20px); font-weight: bold; font-size: 16px; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <div class="header-logo">FFBL</div>
-        <div class="header-title">OIL REPLACEMENT / INSPECTION<br>CHECKLIST</div>
-    </div>
-
-    <div class="meta-grid">
+<div class="wrapper">
+    <div class="meta-info">
         <div>Date: <input type="date" id="dated"></div>
-        <div>Plant/Area: <input type="text" id="plantArea" placeholder="e.g. Area 100"></div>
-        <div>Name: <input type="text" id="jmcName" placeholder="Employee Name"></div>
-        <div>P.No: <input type="text" id="pNo" placeholder="Personal No"></div>
+        <div>Plant: <input type="text" id="plant" placeholder="Area"></div>
+        <div>Tech: <input type="text" id="tech" placeholder="Name"></div>
     </div>
 
-    <div style="padding: 10px; background: #ffeb3b; font-weight: bold; text-align: center; border-bottom: 2px solid black;">
-        TAG ID: <input type="text" id="logTag" style="font-size: 18px; width: 60%;" placeholder="e.g. G-101-A">
+    <div class="table-container">
+        <table id="pumpTable">
+            <thead>
+                <tr>
+                    <th class="sticky-col">TAG #</th>
+                    <th class="col-small">1. Lvl Inc?</th>
+                    <th class="col-small">2. Qty Drain</th>
+                    <th class="col-small">3. Color</th>
+                    <th class="col-med">4. Impurities</th>
+                    <th class="col-small">5. Supply Line</th>
+                    <th class="col-small">8. Oil Type</th>
+                    <th class="col-small">9. Cond Filled</th>
+                    <th class="col-small">11. Qty New</th>
+                    <th class="col-med">Comments</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td class="sticky-col"><input type="text" class="t-tag" placeholder="G-101"></td>
+                    <td><select class="t-l1"><option>Yes</option><option>No</option></select></td>
+                    <td><input type="text" class="t-l2"></td>
+                    <td><input type="text" class="t-l3"></td>
+                    <td><input type="text" class="t-l4"></td>
+                    <td><select class="t-l5"><option>Open</option><option>Chocked</option></select></td>
+                    <td><input type="text" class="t-l8"></td>
+                    <td><input type="text" class="t-l9"></td>
+                    <td><input type="number" class="t-l11"></td>
+                    <td><input type="text" class="t-comment"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <div class="section-header" onclick="toggleSec('sec1')"><span>1. PRE-JOB PREP</span><span>▼</span></div>
-    <div id="sec1" class="section-content">
-        <div class="card"><label>1. Oil level slightly increased?</label><select id="l1"><option>Yes</option><option>No</option></select></div>
-        <div class="card"><label>12. Housing cleaned/Housekeeping?</label><select id="l12"><option>Yes</option><option>No</option></select></div>
-        <div class="card"><label>13. Dead plug installed?</label><select id="l13"><option>Yes</option><option>No</option></select></div>
-    </div>
-
-    <div class="section-header" onclick="toggleSec('sec2')"><span>2. DRAINING PHASE</span><span>▼</span></div>
-    <div id="sec2" class="section-content">
-        <div class="card"><label>2. Qty Drained (Ltr)</label><input type="text" id="l2"></div>
-        <div class="card"><label>3. Color of Drained Oil</label><input type="text" id="l3" placeholder="Normal/Black"></div>
-        <div class="card"><label>4. Impurities</label><input type="text" id="l4" placeholder="None/Sand/Metal"></div>
-        <div class="card"><label>5. Oil Supply Line</label><select id="l5"><option>Open</option><option>Chocked/Cleaned</option></select></div>
-    </div>
-
-    <div class="section-header" onclick="toggleSec('sec3')"><span>3. REFILLING PHASE</span><span>▼</span></div>
-    <div id="sec3" class="section-content">
-        <div class="card"><label>8. Type of Oil Filled</label><input type="text" id="l8"></div>
-        <div class="card"><label>9. Condition of Oil Filled</label><input type="text" id="l9" placeholder="Clean/Dirty"></div>
-        <div class="card"><label>11. Qty New Oil (Ltr)</label><input type="number" id="l11"></div>
-        <div class="card"><label>Comments</label><input type="text" id="comment"></div>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn btn-clone" onclick="saveToBatch(true)">ADD & CLONE FOR NEXT PUMP</button>
-        <button class="btn btn-submit" onclick="finishBatch()">FINISH & SEND BATCH</button>
-    </div>
-
-    <div id="logSummary">
-        <strong>Batch Log:</strong>
-        <div id="logList"></div>
-    </div>
+    <button class="btn-add" onclick="addRow()">+ ADD ANOTHER PUMP ROW</button>
+    <button class="btn-send" onclick="sendData()">FINISH & SEND BATCH</button>
 </div>
 
 <script>
-    let batchData = [];
     document.getElementById('dated').valueAsDate = new Date();
 
-    function toggleSec(id) {
-        let x = document.getElementById(id);
-        x.style.display = (x.style.display === "none") ? "block" : "none";
+    function addRow() {
+        const tbody = document.getElementById('tableBody');
+        const newRow = tbody.rows[0].cloneNode(true);
+        // Clear inputs in cloned row
+        newRow.querySelectorAll('input').forEach(i => i.value = "");
+        tbody.appendChild(newRow);
     }
 
-    function saveToBatch(isClone) {
-        const tag = document.getElementById('logTag').value;
-        if(!tag) { alert("Enter TAG ID"); return; }
+    function sendData() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        let batch = [];
+        
+        rows.forEach(row => {
+            const tag = row.querySelector('.t-tag').value;
+            if(tag) {
+                batch.push({
+                    Tag: tag,
+                    L1: row.querySelector('.t-l1').value,
+                    L2: row.querySelector('.t-l2').value,
+                    L3: row.querySelector('.t-l3').value,
+                    L4: row.querySelector('.t-l4').value,
+                    L5: row.querySelector('.t-l5').value,
+                    L8: row.querySelector('.t-l8').value,
+                    L9: row.querySelector('.t-l9').value,
+                    L11: row.querySelector('.t-l11').value,
+                    Comment: row.querySelector('.t-comment').value
+                });
+            }
+        });
 
-        const data = {
-            Tag: tag,
-            L1: document.getElementById('l1').value,
-            L2: document.getElementById('l2').value,
-            L3: document.getElementById('l3').value,
-            L4: document.getElementById('l4').value,
-            L5: document.getElementById('l5').value,
-            L8: document.getElementById('l8').value,
-            L9: document.getElementById('l9').value,
-            L11: document.getElementById('l11').value,
-            L12: document.getElementById('l12').value,
-            L13: document.getElementById('l13').value,
-            Comment: document.getElementById('comment').value
-        };
-
-        batchData.push(data);
-        renderLog();
-
-        if(!isClone) {
-            // Reset fields
-            document.querySelectorAll('input:not(#dated):not(#jmcName):not(#pNo):not(#plantArea)').forEach(i => i.value = "");
-        } else {
-            alert("Pump " + tag + " saved. Modify Tag for the cloned entry.");
-            document.getElementById('logTag').value = ""; // Just clear tag for the next one
-        }
-    }
-
-    function renderLog() {
-        const list = document.getElementById('logList');
-        list.innerHTML = batchData.map((d, i) => `<div class="log-entry"><span>${i+1}. ${d.Tag}</span><button onclick="batchData.splice(${i},1);renderLog()">Delete</button></div>`).join('');
-    }
-
-    function finishBatch() {
-        if(batchData.length === 0) return;
-        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plantArea').value}|TECH:${document.getElementById('jmcName').value}`;
-        const body = `${meta}\n\nDATA:${JSON.stringify(batchData)}`;
+        if(batch.length === 0) return;
+        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}`;
+        const body = `${meta}\n\nDATA:${JSON.stringify(batch)}`;
         window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
     }
 </script>
+
 </body>
 </html>
