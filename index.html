@@ -3,154 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL Horizontal Log - Optimized</title>
+    <title>FFBL Transposed Log</title>
     <style>
-        :root { --ffbl-blue: #0056b3; --ffbl-yellow: #ffeb3b; }
         body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 5px; }
-        .wrapper { background: white; border: 1px solid #000; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .wrapper { background: white; border: 1px solid #000; display: flex; flex-direction: column; height: 98vh; }
         
-        /* Top Header Area */
-        .meta-info { display: grid; grid-template-columns: 1fr 1fr; background: #fff; border-bottom: 2px solid #000; padding: 10px; gap: 10px; font-size: 12px; }
-        .meta-info div { display: flex; flex-direction: column; }
-        .meta-info input { border: none; border-bottom: 1px solid #333; padding: 4px; font-size: 14px; }
+        .meta-info { padding: 10px; border-bottom: 2px solid #000; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
+        .meta-info input { border: none; border-bottom: 1px solid #333; width: 100%; }
 
-        /* Scroll Engine */
-        .table-container { overflow-x: auto; width: 100%; position: relative; }
-        table { border-collapse: collapse; min-width: 1300px; } /* Set wide to prevent squishing */
+        /* THE TRANSPOSED TABLE ENGINE */
+        .table-container { overflow-x: auto; flex-grow: 1; }
+        table { border-collapse: collapse; min-width: 100%; }
         
-        th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 12px; }
-        th { background-color: #343a40; color: white; white-space: nowrap; height: 50px; }
-
-        /* Column Width Adjustments */
-        .sticky-col {
-            position: sticky; left: 0;
-            background-color: var(--ffbl-yellow) !important;
-            z-index: 10; border-right: 2px solid #000;
-            font-weight: bold; min-width: 95px; /* Fits GT-1001-A perfectly */
+        /* Sticky Left Column (The Checklist Items) */
+        th:first-child, td:first-child { 
+            position: sticky; left: 0; background: #343a40; color: white; 
+            z-index: 10; text-align: left; padding: 10px; min-width: 160px; font-size: 11px;
+            border-right: 2px solid #000;
         }
 
-        .col-select { min-width: 90px; } /* For Yes/No/Open/OK */
-        .col-text { min-width: 100px; }   /* For Color/Impurities */
-        .col-comment { min-width: 200px; } /* Wider for remarks */
+        /* Pump Columns */
+        td { border: 1px solid #000; padding: 5px; min-width: 120px; text-align: center; }
+        .pump-header { background: #ffeb3b !important; color: #000 !important; font-weight: bold; }
 
-        input, select { 
-            width: 95%; padding: 6px; border: 1px solid #999; 
-            border-radius: 3px; font-size: 14px; background: white;
-        }
-
-        /* Buttons */
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
+        input, select { width: 95%; padding: 8px; border: 1px solid #ccc; font-size: 14px; border-radius: 4px; }
+        
+        .btn-group { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 2px solid #000; }
+        .btn { padding: 15px; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .btn-add { background: #28a745; }
-        .btn-send { background: var(--ffbl-blue); }
-
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        .btn-send { background: #0056b3; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <div class="meta-info">
-        <div><strong>Date:</strong><input type="date" id="dated"></div>
-        <div><strong>Plant/Area:</strong><input type="text" id="plant" placeholder="Unit Area"></div>
-        <div><strong>Technician:</strong><input type="text" id="tech" placeholder="Name/P.No"></div>
-        <div><strong>Shift:</strong><input type="text" id="shift" placeholder="Morning/Evening"></div>
+        <div>Date: <input type="date" id="dated"></div>
+        <div>Area: <input type="text" id="plant" placeholder="Plant Area"></div>
+        <div>Tech: <input type="text" id="tech" placeholder="Name"></div>
+        <div>Shift: <input type="text" id="shift" placeholder="Morning"></div>
     </div>
 
     <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th class="sticky-col">TAG #</th>
-                    <th class="col-select">1. Lvl Inc?</th>
-                    <th class="col-text">2. Qty Drain</th>
-                    <th class="col-select">3. Color</th>
-                    <th class="col-text">4. Impurities</th>
-                    <th class="col-select">5. Supply Line</th>
-                    <th class="col-select">7. Housing</th>
-                    <th class="col-text">8. Oil Type</th>
-                    <th class="col-select">10. Breather</th>
-                    <th class="col-text">11. Qty New</th>
-                    <th class="col-select">12. H.Keeping</th>
-                    <th class="col-select">13. Dead Plug</th>
-                    <th class="col-comment">Additional Comments</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr>
-                    <td class="sticky-col"><input type="text" class="t-tag" placeholder="GT-1001-A"></td>
-                    <td><select class="t-l1"><option>Yes</option><option>No</option></select></td>
-                    <td><input type="text" class="t-l2" placeholder="Ltr"></td>
-                    <td><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></td>
-                    <td><input type="text" class="t-l4" placeholder="None/Sand"></td>
-                    <td><select class="t-l5"><option>Open</option><option>Chocked</option></select></td>
-                    <td><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></td>
-                    <td><input type="text" class="t-l8" placeholder="ISO VG"></td>
-                    <td><select class="t-l10"><option>OK</option><option>Chocked</option></select></td>
-                    <td><input type="text" class="t-l11" placeholder="Ltr"></td>
-                    <td><select class="t-l12"><option>Yes</option><option>No</option></select></td>
-                    <td><select class="t-l13"><option>Yes</option><option>No</option></select></td>
-                    <td><input type="text" class="t-comment"></td>
-                </tr>
-            </tbody>
+        <table id="mainTable">
+            <tr id="row-tag"><td><strong>TAG # / EQUIP ID</strong></td><td class="pump-header"><input type="text" class="t-tag" placeholder="GT-1001-A"></td></tr>
+            <tr><td>1. Oil Level Inc?</td><td><select class="t-l1"><option>Yes</option><option>No</option></select></td></tr>
+            <tr><td>2. Qty Drained (L)</td><td><input type="text" class="t-l2"></td></tr>
+            <tr><td>3. Color</td><td><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></td></tr>
+            <tr><td>4. Impurities</td><td><input type="text" class="t-l4" placeholder="None"></td></tr>
+            <tr><td>5. Supply Line</td><td><select class="t-l5"><option>Open</option><option>Chocked</option></select></td></tr>
+            <tr><td>7. Oil Housing</td><td><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></td></tr>
+            <tr><td>8. Oil Type</td><td><input type="text" class="t-l8" placeholder="VG-68"></td></tr>
+            <tr><td>10. Casing Breather</td><td><select class="t-l10"><option>OK</option><option>Chocked</option></select></td></tr>
+            <tr><td>11. Qty New (L)</td><td><input type="text" class="t-l11"></td></tr>
+            <tr><td>12. Housekeeping</td><td><select class="t-l12"><option>Yes</option><option>No</option></select></td></tr>
+            <tr><td>13. Dead Plug</td><td><select class="t-l13"><option>Yes</option><option>No</option></select></td></tr>
+            <tr><td>Comments</td><td><input type="text" class="t-comment"></td></tr>
         </table>
     </div>
 
-    <div class="controls">
-        <button class="btn btn-add" onclick="addRow()">+ ADD NEXT PUMP</button>
-        <button class="btn btn-send" onclick="sendData()">FINISH & SEND BATCH</button>
+    <div class="btn-group">
+        <button class="btn btn-add" onclick="addPumpColumn()">+ ADD PUMP</button>
+        <button class="btn btn-send" onclick="sendBatch()">SEND BATCH</button>
     </div>
 </div>
 
 <script>
     document.getElementById('dated').valueAsDate = new Date();
 
-    function addRow() {
-        const tbody = document.getElementById('tableBody');
-        const firstRow = tbody.rows[0];
-        const newRow = firstRow.cloneNode(true);
-        
-        // Clear all text inputs in the new row
-        newRow.querySelectorAll('input').forEach(i => i.value = "");
-        // Reset selects to first option
-        newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-        
-        tbody.appendChild(newRow);
-        // Auto-scroll to the new row
-        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    function addPumpColumn() {
+        const table = document.getElementById('mainTable');
+        for (let i = 0; i < table.rows.length; i++) {
+            let newCell = table.rows[i].insertCell(-1);
+            let templateCell = table.rows[i].cells[1];
+            newCell.innerHTML = templateCell.innerHTML;
+            // Clear inputs in the new column
+            let input = newCell.querySelector('input');
+            if(input) input.value = "";
+            let select = newCell.querySelector('select');
+            if(select) select.selectedIndex = 0;
+            // Style the header row cell
+            if(i === 0) newCell.className = "pump-header";
+        }
     }
 
-    function sendData() {
-        const rows = document.querySelectorAll('#tableBody tr');
+    function sendBatch() {
+        const table = document.getElementById('mainTable');
+        const pumpCount = table.rows[0].cells.length - 1;
         let batch = [];
-        
-        rows.forEach(row => {
-            const tag = row.querySelector('.t-tag').value.trim();
-            if(tag) {
+
+        for (let col = 1; col <= pumpCount; col++) {
+            let tag = table.rows[0].cells[col].querySelector('input').value;
+            if (tag) {
                 batch.push({
                     Tag: tag,
-                    L1: row.querySelector('.t-l1').value,
-                    L2: row.querySelector('.t-l2').value,
-                    L3: row.querySelector('.t-l3').value,
-                    L4: row.querySelector('.t-l4').value,
-                    L5: row.querySelector('.t-l5').value,
-                    L7: row.querySelector('.t-l7').value,
-                    L8: row.querySelector('.t-l8').value,
-                    L10: row.querySelector('.t-l10').value,
-                    L11: row.querySelector('.t-l11').value,
-                    L12: row.querySelector('.t-l12').value,
-                    L13: row.querySelector('.t-l13').value,
-                    Comment: row.querySelector('.t-comment').value
+                    L1: table.rows[1].cells[col].querySelector('select').value,
+                    L2: table.rows[2].cells[col].querySelector('input').value,
+                    L3: table.rows[3].cells[col].querySelector('select').value,
+                    L4: table.rows[4].cells[col].querySelector('input').value,
+                    L5: table.rows[5].cells[col].querySelector('select').value,
+                    L7: table.rows[6].cells[col].querySelector('select').value,
+                    L8: table.rows[7].cells[col].querySelector('input').value,
+                    L10: table.rows[8].cells[col].querySelector('select').value,
+                    L11: table.rows[9].cells[col].querySelector('input').value,
+                    L12: table.rows[10].cells[col].querySelector('select').value,
+                    L13: table.rows[11].cells[col].querySelector('select').value,
+                    Comment: table.rows[12].cells[col].querySelector('input').value
                 });
             }
-        });
+        }
 
-        if(batch.length === 0) { alert("Please enter at least one Tag ID"); return; }
-        
-        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}|TECH:${document.getElementById('tech').value}`;
-        const body = `${meta}\n\nDATA:${JSON.stringify(batch)}`;
-        
-        // This opens the email app with the structured data
+        if(batch.length === 0) return;
+        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}`;
+        const body = `FFBL_TRANSPOSED_LOG\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
         window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
     }
 </script>
