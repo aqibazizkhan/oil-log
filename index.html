@@ -3,108 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL Horizontal Log</title>
+    <title>FFBL Horizontal Log - Optimized</title>
     <style>
+        :root { --ffbl-blue: #0056b3; --ffbl-yellow: #ffeb3b; }
         body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 5px; }
-        .wrapper { background: white; border: 1px solid #000; overflow: hidden; }
+        .wrapper { background: white; border: 1px solid #000; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         
-        /* Header Info */
-        .meta-info { display: flex; flex-wrap: wrap; background: #eee; border-bottom: 2px solid #000; padding: 5px; font-size: 11px; }
-        .meta-info div { margin-right: 15px; margin-bottom: 5px; }
-        .meta-info input { border: none; border-bottom: 1px solid #333; background: transparent; width: 80px; }
+        /* Top Header Area */
+        .meta-info { display: grid; grid-template-columns: 1fr 1fr; background: #fff; border-bottom: 2px solid #000; padding: 10px; gap: 10px; font-size: 12px; }
+        .meta-info div { display: flex; flex-direction: column; }
+        .meta-info input { border: none; border-bottom: 1px solid #333; padding: 4px; font-size: 14px; }
 
-        /* THE TABLE SCROLL ENGINE */
-        .table-container { 
-            overflow-x: auto; /* Allows side-to-side swiping */
-            width: 100%;
-            position: relative;
-        }
-
-        table { border-collapse: collapse; min-width: 1200px; /* Forces enough width for columns */ }
+        /* Scroll Engine */
+        .table-container { overflow-x: auto; width: 100%; position: relative; }
+        table { border-collapse: collapse; min-width: 1300px; } /* Set wide to prevent squishing */
         
-        th, td { 
-            border: 1px solid #000; 
-            padding: 8px; 
-            text-align: center; 
-            font-size: 12px; 
-        }
+        th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 12px; }
+        th { background-color: #343a40; color: white; white-space: nowrap; height: 50px; }
 
-        th { background-color: #343a40; color: white; height: 40px; }
-
-        /* STICKY COLUMN: This keeps the Tag # visible while swiping */
+        /* Column Width Adjustments */
         .sticky-col {
-            position: sticky;
-            left: 0;
-            background-color: #ffeb3b !important; /* Yellow like a highlight */
-            z-index: 2;
-            border-right: 2px solid #000;
-            font-weight: bold;
-            color: #000 !important;
-            min-width: 50px;
+            position: sticky; left: 0;
+            background-color: var(--ffbl-yellow) !important;
+            z-index: 10; border-right: 2px solid #000;
+            font-weight: bold; min-width: 95px; /* Fits GT-1001-A perfectly */
         }
+
+        .col-select { min-width: 90px; } /* For Yes/No/Open/OK */
+        .col-text { min-width: 100px; }   /* For Color/Impurities */
+        .col-comment { min-width: 200px; } /* Wider for remarks */
 
         input, select { 
-            width: 90%; 
-            padding: 5px; 
-            border: 1px solid #ccc; 
-            border-radius: 3px; 
-            font-size: 14px;
+            width: 95%; padding: 6px; border: 1px solid #999; 
+            border-radius: 3px; font-size: 14px; background: white;
         }
 
-        /* Fixed widths for columns to keep things readable */
-        .col-tag { width: 100px; }
-        .col-small { width: 80px; }
-        .col-med { width: 150px; }
+        /* Buttons */
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
+        .btn-add { background: #28a745; }
+        .btn-send { background: var(--ffbl-blue); }
 
-        .btn-add { background: #28a745; color: white; padding: 10px; border: none; margin: 10px; cursor: pointer; width: calc(100% - 20px); font-weight: bold; }
-        .btn-send { background: #0056b3; color: white; padding: 15px; border: none; margin: 10px; cursor: pointer; width: calc(100% - 20px); font-weight: bold; font-size: 16px; }
-
+        tr:nth-child(even) { background-color: #f9f9f9; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <div class="meta-info">
-        <div>Date: <input type="date" id="dated"></div>
-        <div>Plant: <input type="text" id="plant" placeholder="Area"></div>
-        <div>Tech: <input type="text" id="tech" placeholder="Name"></div>
+        <div><strong>Date:</strong><input type="date" id="dated"></div>
+        <div><strong>Plant/Area:</strong><input type="text" id="plant" placeholder="Unit Area"></div>
+        <div><strong>Technician:</strong><input type="text" id="tech" placeholder="Name/P.No"></div>
+        <div><strong>Shift:</strong><input type="text" id="shift" placeholder="Morning/Evening"></div>
     </div>
 
     <div class="table-container">
-        <table id="pumpTable">
+        <table>
             <thead>
                 <tr>
                     <th class="sticky-col">TAG #</th>
-                    <th class="col-small">1. Lvl Inc?</th>
-                    <th class="col-small">2. Qty Drain</th>
-                    <th class="col-small">3. Color</th>
-                    <th class="col-med">4. Impurities</th>
-                    <th class="col-small">5. Supply Line</th>
-                    <th class="col-small">8. Oil Type</th>
-                    <th class="col-small">9. Cond Filled</th>
-                    <th class="col-small">11. Qty New</th>
-                    <th class="col-med">Comments</th>
+                    <th class="col-select">1. Lvl Inc?</th>
+                    <th class="col-text">2. Qty Drain</th>
+                    <th class="col-select">3. Color</th>
+                    <th class="col-text">4. Impurities</th>
+                    <th class="col-select">5. Supply Line</th>
+                    <th class="col-select">7. Housing</th>
+                    <th class="col-text">8. Oil Type</th>
+                    <th class="col-select">10. Breather</th>
+                    <th class="col-text">11. Qty New</th>
+                    <th class="col-select">12. H.Keeping</th>
+                    <th class="col-select">13. Dead Plug</th>
+                    <th class="col-comment">Additional Comments</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
                 <tr>
-                    <td class="sticky-col"><input type="text" class="t-tag" placeholder="G-101"></td>
+                    <td class="sticky-col"><input type="text" class="t-tag" placeholder="GT-1001-A"></td>
                     <td><select class="t-l1"><option>Yes</option><option>No</option></select></td>
-                    <td><input type="text" class="t-l2"></td>
-                    <td><input type="text" class="t-l3"></td>
-                    <td><input type="text" class="t-l4"></td>
+                    <td><input type="text" class="t-l2" placeholder="Ltr"></td>
+                    <td><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></td>
+                    <td><input type="text" class="t-l4" placeholder="None/Sand"></td>
                     <td><select class="t-l5"><option>Open</option><option>Chocked</option></select></td>
-                    <td><input type="text" class="t-l8"></td>
-                    <td><input type="text" class="t-l9"></td>
-                    <td><input type="number" class="t-l11"></td>
+                    <td><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></td>
+                    <td><input type="text" class="t-l8" placeholder="ISO VG"></td>
+                    <td><select class="t-l10"><option>OK</option><option>Chocked</option></select></td>
+                    <td><input type="text" class="t-l11" placeholder="Ltr"></td>
+                    <td><select class="t-l12"><option>Yes</option><option>No</option></select></td>
+                    <td><select class="t-l13"><option>Yes</option><option>No</option></select></td>
                     <td><input type="text" class="t-comment"></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <button class="btn-add" onclick="addRow()">+ ADD ANOTHER PUMP ROW</button>
-    <button class="btn-send" onclick="sendData()">FINISH & SEND BATCH</button>
+    <div class="controls">
+        <button class="btn btn-add" onclick="addRow()">+ ADD NEXT PUMP</button>
+        <button class="btn btn-send" onclick="sendData()">FINISH & SEND BATCH</button>
+    </div>
 </div>
 
 <script>
@@ -112,10 +107,17 @@
 
     function addRow() {
         const tbody = document.getElementById('tableBody');
-        const newRow = tbody.rows[0].cloneNode(true);
-        // Clear inputs in cloned row
+        const firstRow = tbody.rows[0];
+        const newRow = firstRow.cloneNode(true);
+        
+        // Clear all text inputs in the new row
         newRow.querySelectorAll('input').forEach(i => i.value = "");
+        // Reset selects to first option
+        newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        
         tbody.appendChild(newRow);
+        // Auto-scroll to the new row
+        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function sendData() {
@@ -123,7 +125,7 @@
         let batch = [];
         
         rows.forEach(row => {
-            const tag = row.querySelector('.t-tag').value;
+            const tag = row.querySelector('.t-tag').value.trim();
             if(tag) {
                 batch.push({
                     Tag: tag,
@@ -132,17 +134,23 @@
                     L3: row.querySelector('.t-l3').value,
                     L4: row.querySelector('.t-l4').value,
                     L5: row.querySelector('.t-l5').value,
+                    L7: row.querySelector('.t-l7').value,
                     L8: row.querySelector('.t-l8').value,
-                    L9: row.querySelector('.t-l9').value,
+                    L10: row.querySelector('.t-l10').value,
                     L11: row.querySelector('.t-l11').value,
+                    L12: row.querySelector('.t-l12').value,
+                    L13: row.querySelector('.t-l13').value,
                     Comment: row.querySelector('.t-comment').value
                 });
             }
         });
 
-        if(batch.length === 0) return;
-        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}`;
+        if(batch.length === 0) { alert("Please enter at least one Tag ID"); return; }
+        
+        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plant').value}|TECH:${document.getElementById('tech').value}`;
         const body = `${meta}\n\nDATA:${JSON.stringify(batch)}`;
+        
+        // This opens the email app with the structured data
         window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
     }
 </script>
