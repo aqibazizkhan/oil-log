@@ -3,304 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL Oil Replacement Log</title>
+    <title>FFBL Machinery Maintenance</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
-        .form-wrapper { max-width: 600px; margin: 0 auto; }
+        :root { --ffbl-blue: #0056b3; --ffbl-grey: #343a40; --ffbl-border: #000; }
+        body { font-family: sans-serif; background-color: #e9ecef; margin: 0; padding: 10px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; border: 2px solid var(--ffbl-border); }
         
-        /* FFBL Look Headers */
-        .ffbl-header { background-color: white; border: 2px solid black; padding: 10px; text-align: center; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .ffbl-logo { font-size: 20px; font-weight: bold; border-right: 1px solid black; padding-right: 10px; }
-        .ffbl-title { text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; text-align: center; padding: 0 10px; }
-        .ffbl-title h1 { margin: 0; font-size: 16px; }
-        .ffbl-dept { font-size: 10px; border-left: 1px solid black; padding-left: 10px; text-align: right; }
-
-        /* Meta Information Section (Top of form) */
-        .meta-section { background-color: white; border: 2px solid black; border-bottom: none; display: flex; flex-wrap: wrap; margin-bottom: 5px; }
-        .meta-item { border-right: 1px solid black; padding: 5px; flex-basis: calc(50% - 11px); }
-        .meta-item:nth-child(even) { border-right: none; }
-        .meta-item strong { display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 3px; }
-        .meta-item input { border: none; border-bottom: 1px dashed black; width: 90%; font-size: 14px; padding: 2px 0; }
-        .meta-item input:focus { outline: none; border-bottom-color: green; }
-
-        /* Pump Submission Section (The structured log) */
-        #pumpSubmissionArea { background-color: white; border: 2px solid black; }
-        .table-header { border-bottom: 2px solid black; font-size: 12px; text-transform: uppercase; font-weight: bold; padding: 5px; text-align: center; background-color: #f4f4f4; }
+        /* Header Section */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 2px solid var(--ffbl-border); background: #fff; }
+        .header-logo { font-weight: bold; font-size: 24px; color: var(--ffbl-blue); }
+        .header-title { text-align: center; flex-grow: 1; font-size: 14px; font-weight: bold; }
         
-        /* Table Structure to match paper */
-        .log-row { display: flex; border-bottom: 1px solid black; }
-        .log-row:last-child { border-bottom: none; }
-        .log-cell-sno { flex: 0 0 30px; text-align: center; font-size: 11px; padding: 5px; border-right: 1px solid black; display: flex; align-items: center; justify-content: center; }
-        .log-cell-item { flex: 1; padding: 5px; font-size: 12px; border-right: 1px solid black; }
-        .log-cell-item-desc { font-weight: bold; display: block; margin-bottom: 3px;}
-        .log-cell-input { flex: 0 0 150px; padding: 2px; text-align: center; display: flex; align-items: center; justify-content: center; }
-        .log-cell-input select, .log-cell-input input { width: 100%; font-size: 14px; padding: 2px; border: 1px solid #ccc; border-radius: 4px; }
+        /* Meta Data Section */
+        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--ffbl-border); font-size: 12px; }
+        .meta-grid div { padding: 5px; border: 0.5px solid #ccc; }
+        .meta-grid input { width: 90%; border: none; border-bottom: 1px solid #999; outline: none; }
 
-        /* Input specific sizes */
-        .q-input { display: flex; gap: 5px; font-size: 11px; flex-wrap: wrap;}
-        .q-input input { width: 40px !important; text-align: center; }
+        /* Accordion Styling */
+        .section-header { background: var(--ffbl-grey); color: white; padding: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid #fff; }
+        .section-content { padding: 10px; display: block; border-bottom: 2px solid var(--ffbl-border); }
         
-        .type-input { display: flex; flex-direction: column; gap: 3px; width: 100%;}
-        .type-input input { width: 95% !important;}
+        /* Input Cards */
+        .card { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .card label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #444; }
+        .card select, .card input { width: 100%; padding: 8px; border: 1px solid #999; border-radius: 4px; font-size: 16px; }
 
-        /* Controls Section */
-        .controls-wrapper { margin-top: 15px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
-        .btn { border: none; padding: 12px; border-radius: 6px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; width: 100%; }
-        .btn-add { background-color: #3182ce; }
-        .btn-add:hover { background-color: #2c5282; }
-        .btn-submit { background-color: #2f855a; }
-        .btn-submit:hover { background-color: #276749; }
+        /* Clone/Action Buttons */
+        .btn-group { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; color: white; }
+        .btn-clone { background: #28a745; }
+        .btn-submit { background: var(--ffbl-blue); }
 
-        /* Log Summary Area (Bottom) */
-        #submissionLogArea { background-color: white; border: 2px solid black; margin-top: 10px; padding: 10px; display: none;}
-        #submissionLogArea h3 { border-bottom: 2px solid black; margin-top: 0; padding-bottom: 5px; text-transform: uppercase; font-size: 14px; }
-        .logged-item { border: 1px solid black; margin-bottom: 5px; padding: 5px; font-size: 12px; background-color: #fafafa;}
-
+        /* Batch Log Summary */
+        #logSummary { padding: 10px; background: #fff; border-top: 2px solid var(--ffbl-border); }
+        .log-entry { border: 1px solid #ccc; padding: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="form-wrapper">
-    <div class="ffbl-header">
-        <div class="ffbl-logo">FFBL</div>
-        <div class="ffbl-title">
-            CHECK LIST
-            <h1>FOR OIL REPLACEMENT / INSPECTION</h1>
-        </div>
-        <div class="ffbl-dept">
-            PLANT SITE<br>
-            MACHINERY<br>
-            MAINTENANCE
-        </div>
+<div class="container">
+    <div class="header">
+        <div class="header-logo">FFBL</div>
+        <div class="header-title">OIL REPLACEMENT / INSPECTION<br>CHECKLIST</div>
     </div>
 
-    <div class="meta-section">
-        <div class="meta-item"><strong>Date:</strong><input type="date" id="dated" required></div>
-        <div class="meta-item"><strong>Shift:</strong><input type="text" id="shift" placeholder="e.g., Morning"></div>
-        <div class="meta-item"><strong>JMC Employee Name:</strong><input type="text" id="jmcEmployeeName"></div>
-        <div class="meta-item"><strong>Designation:</strong><input type="text" id="designation"></div>
-        <div class="meta-item"><strong>P. No:</strong><input type="text" id="pNo"></div>
-        <div class="meta-item"><strong>Plant/Unit/Area:</strong><input type="text" id="plantUnitArea" required></div>
+    <div class="meta-grid">
+        <div>Date: <input type="date" id="dated"></div>
+        <div>Plant/Area: <input type="text" id="plantArea" placeholder="e.g. Area 100"></div>
+        <div>Name: <input type="text" id="jmcName" placeholder="Employee Name"></div>
+        <div>P.No: <input type="text" id="pNo" placeholder="Personal No"></div>
     </div>
 
-    <div id="pumpSubmissionArea">
-        <div class="table-header">LOGENTRY: NEXT PUMP INSPECTION</div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">#</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc" style="color:red; font-size: 14px;">TAG # / EQUIPMENT ID</strong>Enter Equipment Tag (e.g., G-101)</div>
-            <div class="log-cell-input"><input type="text" id="logTag" placeholder="Tag#" required></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">1</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Oil level slightly increased for inspection</strong>Precaution to avoid level drop</div>
-            <div class="log-cell-input"><select id="logLevelInc"><option value="Yes">Yes</option><option value="No">No</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">2</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Quantity of oil drained</strong>Machine stopped</div>
-            <div class="log-cell-input"><input type="text" id="logQuantDrain" placeholder="e.g., 2 Liters"></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">3</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Colour of oil drained</strong></div>
-            <div class="log-cell-input"><input type="text" id="logColorDrain" placeholder="Normal/Black"></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">4</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Impurities in oil drained</strong>Options: None/sand/metal particles/moisture</div>
-            <div class="log-cell-input"><input type="text" id="logImpuritiesDrain" placeholder="Specify"></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">5</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Oil supply line</strong>Options: Open/chocked and cleaned</div>
-            <div class="log-cell-input"><select id="logSupplyLine"><option value="Open">Open</option><option value="Chocked and cleaned">Chocked and cleaned</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">6</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Oil drain line</strong>Options: Open/chocked and cleaned</div>
-            <div class="log-cell-input"><select id="logDrainLine"><option value="Open">Open</option><option value="Chocked and cleaned">Chocked and cleaned</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">7</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Oil housing</strong>Options: Cleaned/only flushed</div>
-            <div class="log-cell-input"><select id="logHousing"><option value="Cleaned">Cleaned</option><option value="Only flushed">Only flushed</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">8</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Type of oil</strong>Specify both types</div>
-            <div class="log-cell-input type-input">
-                <input type="text" id="logTypeRecommended" placeholder="Recommended Type">
-                <input type="text" id="logTypeFilled" placeholder="Filled Type">
-            </div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">9</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Condition of oil filled</strong>Options: Clean/slight particles/dirty</div>
-            <div class="log-cell-input"><input type="text" id="logConditionFilled" placeholder="Specify"></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">10</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Casing breather</strong>Options: OK/chocked and cleaned</div>
-            <div class="log-cell-input"><select id="logBreather"><option value="OK">OK</option><option value="Chocked and cleaned">Chocked and cleaned</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">11</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Quantity of new oil filled</strong>Fill both Recommended and Filled amounts</div>
-            <div class="log-cell-input q-input">
-                Rec: <input type="number" id="logQuantRecommendedNew" step="0.1"> litr
-                Filled: <input type="number" id="logQuantFilledNew" step="0.1"> litr
-            </div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">12</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Pump housing cleaned and housekeeping done</strong></div>
-            <div class="log-cell-input"><select id="logHousingCleaned"><option value="No">No</option><option value="Yes">Yes</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">13</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Dead plug installed at bearing housing drain valve</strong></div>
-            <div class="log-cell-input"><select id="logDeadPlug"><option value="No">No</option><option value="Yes">Yes</option></select></div>
-        </div>
-
-        <div class="log-row">
-            <div class="log-cell-sno">C</div>
-            <div class="log-cell-item"><strong class="log-cell-item-desc">Additional Comments:</strong>Include any critical observations</div>
-            <div class="log-cell-input"><input type="text" id="logComments" placeholder="Enter comments..."></div>
-        </div>
-
+    <div style="padding: 10px; background: #ffeb3b; font-weight: bold; text-align: center; border-bottom: 2px solid black;">
+        TAG ID: <input type="text" id="logTag" style="font-size: 18px; width: 60%;" placeholder="e.g. G-101-A">
     </div>
 
-    <div class="controls-wrapper">
-        <button type="button" class="btn btn-add" onclick="logPumpSubmission()">Submit Current Pump & Log Another</button>
-        <button type="button" class="btn btn-submit" id="mainSubmitBtn" style="display:none;" onclick="finishAndSend()">Finish and Send Batch to Engineering Office</button>
+    <div class="section-header" onclick="toggleSec('sec1')"><span>1. PRE-JOB PREP</span><span>▼</span></div>
+    <div id="sec1" class="section-content">
+        <div class="card"><label>1. Oil level slightly increased?</label><select id="l1"><option>Yes</option><option>No</option></select></div>
+        <div class="card"><label>12. Housing cleaned/Housekeeping?</label><select id="l12"><option>Yes</option><option>No</option></select></div>
+        <div class="card"><label>13. Dead plug installed?</label><select id="l13"><option>Yes</option><option>No</option></select></div>
     </div>
 
-    <div id="submissionLogArea">
-        <h3>Batch Submission Log</h3>
-        <div id="loggedPumpContainer"></div>
+    <div class="section-header" onclick="toggleSec('sec2')"><span>2. DRAINING PHASE</span><span>▼</span></div>
+    <div id="sec2" class="section-content">
+        <div class="card"><label>2. Qty Drained (Ltr)</label><input type="text" id="l2"></div>
+        <div class="card"><label>3. Color of Drained Oil</label><input type="text" id="l3" placeholder="Normal/Black"></div>
+        <div class="card"><label>4. Impurities</label><input type="text" id="l4" placeholder="None/Sand/Metal"></div>
+        <div class="card"><label>5. Oil Supply Line</label><select id="l5"><option>Open</option><option>Chocked/Cleaned</option></select></div>
     </div>
 
+    <div class="section-header" onclick="toggleSec('sec3')"><span>3. REFILLING PHASE</span><span>▼</span></div>
+    <div id="sec3" class="section-content">
+        <div class="card"><label>8. Type of Oil Filled</label><input type="text" id="l8"></div>
+        <div class="card"><label>9. Condition of Oil Filled</label><input type="text" id="l9" placeholder="Clean/Dirty"></div>
+        <div class="card"><label>11. Qty New Oil (Ltr)</label><input type="number" id="l11"></div>
+        <div class="card"><label>Comments</label><input type="text" id="comment"></div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-clone" onclick="saveToBatch(true)">ADD & CLONE FOR NEXT PUMP</button>
+        <button class="btn btn-submit" onclick="finishBatch()">FINISH & SEND BATCH</button>
+    </div>
+
+    <div id="logSummary">
+        <strong>Batch Log:</strong>
+        <div id="logList"></div>
+    </div>
 </div>
 
 <script>
-    const loggedPumpsData = [];
-
-    // Set default date to today
+    let batchData = [];
     document.getElementById('dated').valueAsDate = new Date();
 
-    function logPumpSubmission() {
-        const tag = document.getElementById('logTag').value.trim();
-        
-        // Validation check
-        if (!tag) { alert('You must enter a TAG # / Equipment ID before logging the entry.'); return; }
-
-        const submission = {
-            Tag: tag,
-            L1_LevelIncrease: document.getElementById('logLevelInc').value,
-            L2_QuantDrain: document.getElementById('logQuantDrain').value,
-            L3_ColorDrain: document.getElementById('logColorDrain').value,
-            L4_ImpuritiesDrain: document.getElementById('logImpuritiesDrain').value,
-            L5_SupplyLine: document.getElementById('logSupplyLine').value,
-            L6_DrainLine: document.getElementById('logDrainLine').value,
-            L7_Housing: document.getElementById('logHousing').value,
-            L8a_OilRecommended: document.getElementById('logTypeRecommended').value,
-            L8b_OilFilled: document.getElementById('logTypeFilled').value,
-            L9_ConditionFilled: document.getElementById('logConditionFilled').value,
-            L10_Breather: document.getElementById('logBreather').value,
-            L11a_QuantRecommendedNew: document.getElementById('logQuantRecommendedNew').value + " litr",
-            L11b_QuantFilledNew: document.getElementById('logQuantFilledNew').value + " litr",
-            L12_HousingCleaned: document.getElementById('logHousingCleaned').value,
-            L13_DeadPlug: document.getElementById('logDeadPlug').value,
-            Comment: document.getElementById('logComments').value
-        };
-
-        // Add to the main data array
-        loggedPumpsData.push(submission);
-
-        // Update the visual log summary
-        updateLoggedPumpsVisual();
-
-        // Clear only the pump-specific fields, keep top meta-data
-        const fieldsToClear = ['logTag', 'logQuantDrain', 'logColorDrain', 'logImpuritiesDrain', 'logTypeRecommended', 'logTypeFilled', 'logConditionFilled', 'logQuantRecommendedNew', 'logQuantFilledNew', 'logComments'];
-        fieldsToClear.forEach(id => document.getElementById(id).value = '');
-        
-        // Clear select boxes and q-inputs manually for safety
-        document.getElementById('logLevelInc').value = "Yes";
-        document.getElementById('logSupplyLine').value = "Open";
-        document.getElementById('logDrainLine').value = "Open";
-        document.getElementById('logHousing').value = "Cleaned";
-        document.getElementById('logBreather').value = "OK";
-        document.getElementById('logHousingCleaned').value = "No";
-        document.getElementById('logDeadPlug').value = "No";
-
-        alert('Pump ' + tag + ' inspection logged to batch.');
+    function toggleSec(id) {
+        let x = document.getElementById(id);
+        x.style.display = (x.style.display === "none") ? "block" : "none";
     }
 
-    function updateLoggedPumpsVisual() {
-        const container = document.getElementById('loggedPumpContainer');
-        const summaryArea = document.getElementById('submissionLogArea');
-        const submitBtn = document.getElementById('mainSubmitBtn');
-        
-        container.innerHTML = '';
-        if (loggedPumpsData.length > 0) {
-            summaryArea.style.display = 'block';
-            submitBtn.style.display = 'block';
-            
-            loggedPumpsData.forEach((p, index) => {
-                const item = document.createElement('div');
-                item.className = 'logged-item';
-                item.innerHTML = '<strong>' + (index + 1) + '. Tag: ' + p.Tag + '</strong> - Oil Condition: ' + p.L9_ConditionFilled;
-                container.appendChild(item);
-            });
+    function saveToBatch(isClone) {
+        const tag = document.getElementById('logTag').value;
+        if(!tag) { alert("Enter TAG ID"); return; }
+
+        const data = {
+            Tag: tag,
+            L1: document.getElementById('l1').value,
+            L2: document.getElementById('l2').value,
+            L3: document.getElementById('l3').value,
+            L4: document.getElementById('l4').value,
+            L5: document.getElementById('l5').value,
+            L8: document.getElementById('l8').value,
+            L9: document.getElementById('l9').value,
+            L11: document.getElementById('l11').value,
+            L12: document.getElementById('l12').value,
+            L13: document.getElementById('l13').value,
+            Comment: document.getElementById('comment').value
+        };
+
+        batchData.push(data);
+        renderLog();
+
+        if(!isClone) {
+            // Reset fields
+            document.querySelectorAll('input:not(#dated):not(#jmcName):not(#pNo):not(#plantArea)').forEach(i => i.value = "");
+        } else {
+            alert("Pump " + tag + " saved. Modify Tag for the cloned entry.");
+            document.getElementById('logTag').value = ""; // Just clear tag for the next one
         }
     }
 
-    function finishAndSend() {
-        if (loggedPumpsData.length === 0) { alert('You have not logged any pump inspections yet.'); return; }
-
-        const dated = document.getElementById('dated').value;
-        const shift = document.getElementById('shift').value.trim();
-        const jmcName = document.getElementById('jmcEmployeeName').value.trim();
-        const designation = document.getElementById('designation').value.trim();
-        const pNo = document.getElementById('pNo').value.trim();
-        const plantArea = document.getElementById('plantUnitArea').value.trim();
-
-        // Validation for critical header info
-        if (!dated || !plantArea) { alert('Date and Plant/Unit/Area are mandatory fields.'); return; }
-
-        const emailSubject = "OilLogBatch|Date:" + dated + "|Plant:" + plantArea;
-        
-        // CREATE THE NEW ENRICHED DATA PACKET
-        const emailBody = "FFBL_OIL_LOG\n\n" +
-                          "DATED:" + dated + " | SHIFT:" + shift + " | JMC_NAME:" + jmcName + " | DESIGNATION:" + designation + " | P_NO:" + pNo + " | PLANT_AREA:" + plantArea + "\n\n" +
-                          "DATA:" + JSON.stringify(loggedPumpsData);
-
-        const mailtoUrl = "mailto:javed@example.com?subject=" + encodeURIComponent(emailSubject) + "&body=" + encodeURIComponent(emailBody);
-        
-        window.location.href = mailtoUrl;
-
-        // Optional: Clear everything after successful submission
-        loggedPumpsData.length = 0;
-        updateLoggedPumpsVisual();
-        submitBtn.style.display = 'none';
-        summaryArea.style.display = 'none';
+    function renderLog() {
+        const list = document.getElementById('logList');
+        list.innerHTML = batchData.map((d, i) => `<div class="log-entry"><span>${i+1}. ${d.Tag}</span><button onclick="batchData.splice(${i},1);renderLog()">Delete</button></div>`).join('');
     }
 
+    function finishBatch() {
+        if(batchData.length === 0) return;
+        const meta = `DATED:${document.getElementById('dated').value}|PLANT:${document.getElementById('plantArea').value}|TECH:${document.getElementById('jmcName').value}`;
+        const body = `${meta}\n\nDATA:${JSON.stringify(batchData)}`;
+        window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
+    }
 </script>
-
 </body>
 </html>
