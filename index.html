@@ -3,87 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL SmartLog v2</title>
+    <title>FFBL SmartLog v3</title>
     <style>
-        :root {
-            --primary: #1a73e8;
-            --bg: #f8f9fa;
-            --text: #202124;
-            --accent: #fbbc04;
-            --border: #dadce0;
-        }
-
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #202124; --accent: #fbbc04; --border: #dadce0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* Modern Header */
-        header { background: white; padding: 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .branding { display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 800; font-size: 22px; color: var(--primary); letter-spacing: -1px; }
-        .meta-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .meta-input { border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; outline: none; }
-
-        /* The Transposed Engine */
-        .viewport { overflow-x: auto; display: flex; padding: 10px 0; }
+        header { background: white; padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .branding { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--primary); }
         
-        /* Checklist Labels (Fixed on Left) */
+        .meta-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .meta-input { border: 1px solid var(--border); border-radius: 6px; padding: 6px; font-size: 12px; }
+
+        /* The Transposed Grid */
+        .viewport { display: flex; overflow-x: auto; padding-bottom: 80px; }
+        
         .labels-column { 
-            position: sticky; left: 0; z-index: 10; 
-            background: var(--bg); min-width: 150px; 
-            display: flex; flex-direction: column; padding-left: 10px;
+            position: sticky; left: 0; z-index: 50; 
+            background: #fff; min-width: 140px; 
+            border-right: 2px solid var(--border);
         }
-        .label-cell { 
-            height: 50px; display: flex; align-items: center; 
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
-            color: #5f6368; border-bottom: 1px solid transparent;
-        }
+        .cell { height: 48px; display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid #eee; font-size: 11px; font-weight: bold; color: #5f6368; }
 
-        /* Pump Data Column */
-        .pump-column { 
-            min-width: 140px; margin: 0 5px; background: white; 
-            border-radius: 12px; border: 1px solid var(--border); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column;
-            overflow: hidden;
-        }
-        .pump-header { 
-            background: var(--accent); padding: 10px; text-align: center; 
-            font-weight: bold; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        .pump-header input { 
-            width: 90%; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); 
-            text-align: center; font-weight: bold; border-radius: 4px; padding: 4px;
-        }
+        .pump-column { min-width: 160px; background: white; border-right: 1px solid var(--border); transition: background 0.2s; }
+        .pump-header { background: var(--accent); height: 48px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; }
         
-        .input-cell { 
-            height: 50px; display: flex; align-items: center; 
-            justify-content: center; border-bottom: 1px solid #f1f3f4; padding: 0 8px;
-        }
-        .input-cell:last-child { border-bottom: none; }
-        
-        select, input[type="text"], input[type="number"] {
-            width: 100%; border: 1px solid transparent; padding: 8px;
-            font-size: 14px; background: #f1f3f4; border-radius: 6px; outline: none;
-            transition: all 0.2s;
-        }
-        select:focus, input:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+        /* Searchable Input */
+        .tag-input { width: 90%; padding: 6px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-weight: bold; }
+        .data-cell { height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
 
-        /* Floating Action Buttons */
-        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .fab { 
-            width: 56px; height: 56px; border-radius: 28px; border: none; 
-            color: white; font-size: 24px; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-        }
+        select, input[type="text"] { width: 95%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: #fafafa; }
+
+        /* Actions */
+        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 200; }
+        .fab { width: 56px; height: 56px; border-radius: 28px; border: none; color: white; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; }
         .btn-add { background: var(--primary); }
         .btn-send { background: #1e8e3e; }
 
+        datalist { font-family: sans-serif; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="branding">
-        <div class="logo">FFBL <span style="color:var(--text); font-weight:400; font-size:16px;">SmartLog</span></div>
-        <div style="font-size: 10px; text-align:right;">MAINTENANCE<br>UNIT-AREA</div>
+        <div class="logo">FFBL <small style="color:#555; font-weight:400;">SmartLog</small></div>
+        <div style="font-size:10px; text-align:right;">MACHINERY<br>MAINTENANCE</div>
     </div>
     <div class="meta-container">
         <input type="date" id="dated" class="meta-input">
@@ -95,43 +60,66 @@
 
 <div class="viewport">
     <div class="labels-column">
-        <div class="label-cell" style="height:45px;">Equipment ID</div>
-        <div class="label-cell">1. Oil Lvl Inc?</div>
-        <div class="label-cell">2. Qty Drained</div>
-        <div class="label-cell">3. Color</div>
-        <div class="label-cell">4. Impurities</div>
-        <div class="label-cell">5. Supply Line</div>
-        <div class="label-cell">7. Oil Housing</div>
-        <div class="label-cell">8. Oil Type</div>
-        <div class="label-cell">10. Breather</div>
-        <div class="label-cell">11. Qty New</div>
-        <div class="label-cell">12. H-Keeping</div>
-        <div class="label-cell">13. Dead Plug</div>
-        <div class="label-cell">Comments</div>
+        <div class="cell" style="background:#f1f3f4">EQUIPMENT TAG</div>
+        <div class="cell">1. OIL LVL INC?</div>
+        <div class="cell">2. QTY DRAIN (L)</div>
+        <div class="cell">3. COLOR</div>
+        <div class="cell">4. IMPURITIES</div>
+        <div class="cell">5. SUPPLY LINE</div>
+        <div class="cell">7. HOUSING</div>
+        <div class="cell">8. OIL TYPE</div>
+        <div class="cell">10. BREATHER</div>
+        <div class="cell">11. QTY NEW (L)</div>
+        <div class="cell">12. H-KEEPING</div>
+        <div class="cell">13. DEAD PLUG</div>
+        <div class="cell">COMMENTS</div>
     </div>
 
     <div id="pumpContainer" style="display:flex;">
         <div class="pump-column">
-            <div class="pump-header"><input type="text" class="t-tag" placeholder="GT-1001-A"></div>
-            <div class="input-cell"><select class="t-l1"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l2" placeholder="Ltr"></div>
-            <div class="input-cell"><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l4" placeholder="None"></div>
-            <div class="input-cell"><select class="t-l5"><option>Open</option><option>Chocked</option></select></div>
-            <div class="input-cell"><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l8" placeholder="Type"></div>
-            <div class="input-cell"><select class="t-l10"><option>OK</option><option>Chocked</option></select></div>
-            <div class="input-cell"><input type="text" class="t-l11" placeholder="Ltr"></div>
-            <div class="input-cell"><select class="t-l12"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><select class="t-l13"><option>Yes</option><option>No</option></select></div>
-            <div class="input-cell"><input type="text" class="t-comment"></div>
+            <div class="pump-header">
+                <input type="text" list="machineList" class="tag-input t-tag" placeholder="Search Tag...">
+            </div>
+            <div class="data-cell"><select class="t-l1"><option>Yes</option><option>No</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l2" placeholder="Qty"></div>
+            <div class="data-cell"><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l4" placeholder="None"></div>
+            <div class="data-cell"><select class="t-l5"><option>Open</option><option>Chocked</option></select></div>
+            <div class="data-cell"><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l8" placeholder="Type"></div>
+            <div class="data-cell"><select class="t-l10"><option>OK</option><option>Chocked</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l11" placeholder="Qty"></div>
+            <div class="data-cell"><select class="t-l12"><option>Yes</option><option>No</option></select></div>
+            <div class="data-cell"><select class="t-l13"><option>Yes</option><option>No</option></select></div>
+            <div class="data-cell"><input type="text" class="t-comment"></div>
         </div>
     </div>
 </div>
 
+<datalist id="machineList">
+    <option value="GT-101-A"> <option value="GT-101-B"> <option value="G-101-A"> <option value="G-101-B">
+    <option value="G-101-C"> <option value="G-101-D"> <option value="GT-104-A"> <option value="GT-104-B">
+    <option value="G-202-A"> <option value="G-202-B"> <option value="G-202-C"> <option value="G-205-A">
+    <option value="G-205-B"> <option value="G-206-A"> <option value="G-206-B"> <option value="G-206-C">
+    <option value="G-201-A"> <option value="G-201-B"> <option value="G-201-C"> <option value="GHT-201-A">
+    <option value="GHT-201-B"> <option value="GT-1004-B"> <option value="GT-1005-B"> <option value="G-1005-A">
+    <option value="G-1005-B"> <option value="G-207"> <option value="G-403-A"> <option value="G-403-B">
+    <option value="GT-418-A"> <option value="G-418-A"> <option value="G418-B"> <option value="CMP-4019-A">
+    <option value="CMP-4019-S"> <option value="G-106-A"> <option value="G-106-B"> <option value="GT-106-A">
+    <option value="G-405-A"> <option value="G-405-B"> <option value="G-405-C"> <option value="G-405-D">
+    <option value="G-405-E"> <option value="G-405-F"> <option value="G-406-A"> <option value="G-406-B">
+    <option value="G-407"> <option value="G-419"> <option value="G-303-A"> <option value="G-303-B">
+    <option value="G-304-A"> <option value="G-304-B"> <option value="GT-309-A"> <option value="GT-309-B">
+    <option value="G-309-A"> <option value="G-309-B"> <option value="G-309-C"> <option value="G-309-F">
+    <option value="GT-311-A"> <option value="GT-312-A"> <option value="GT-312-B"> <option value="Vacc. Dehyd Pump">
+    <option value="G-301-A"> <option value="G-301-B"> <option value="G-302-A"> <option value="G-302-B">
+    <option value="GT-313-A"> <option value="GT-313-B"> <option value="GT-314-A"> <option value="GT-314-B">
+    <option value="GT-417-A"> <option value="G-417-A"> <option value="G-417-B">
+</datalist>
+
 <div class="fab-container">
-    <button class="fab btn-add" onclick="addNewColumn()" title="Add Pump">+</button>
-    <button class="fab btn-send" onclick="submitLog()" title="Send Batch">✓</button>
+    <button class="fab btn-add" onclick="addNewColumn()">+</button>
+    <button class="fab btn-send" onclick="submitLog()">✓</button>
 </div>
 
 <script>
@@ -141,47 +129,33 @@
         const container = document.getElementById('pumpContainer');
         const firstCol = container.querySelector('.pump-column');
         const newCol = firstCol.cloneNode(true);
-        
-        // Clear all inputs in cloned column
         newCol.querySelectorAll('input').forEach(i => i.value = "");
         newCol.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-        
         container.appendChild(newCol);
-        // Scroll right to the new column
         newCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
     }
 
     function submitLog() {
         const columns = document.querySelectorAll('.pump-column');
         let batch = [];
-
         columns.forEach(col => {
             let tag = col.querySelector('.t-tag').value;
             if(tag) {
                 batch.push({
-                    Tag: tag,
-                    L1: col.querySelector('.t-l1').value,
-                    L2: col.querySelector('.t-l2').value,
-                    L3: col.querySelector('.t-l3').value,
-                    L4: col.querySelector('.t-l4').value,
-                    L5: col.querySelector('.t-l5').value,
-                    L7: col.querySelector('.t-l7').value,
-                    L8: col.querySelector('.t-l8').value,
-                    L10: col.querySelector('.t-l10').value,
-                    L11: col.querySelector('.t-l11').value,
-                    L12: col.querySelector('.t-l12').value,
-                    L13: col.querySelector('.t-l13').value,
-                    Comment: col.querySelector('.t-comment').value
+                    Tag: tag, L1: col.querySelector('.t-l1').value, L2: col.querySelector('.t-l2').value,
+                    L3: col.querySelector('.t-l3').value, L4: col.querySelector('.t-l4').value,
+                    L5: col.querySelector('.t-l5').value, L7: col.querySelector('.t-l7').value,
+                    L8: col.querySelector('.t-l8').value, L10: col.querySelector('.t-l10').value,
+                    L11: col.querySelector('.t-l11').value, L12: col.querySelector('.t-l12').value,
+                    L13: col.querySelector('.t-l13').value, Comment: col.querySelector('.t-comment').value
                 });
             }
         });
-
         if(batch.length === 0) return;
         const meta = `DATE:${document.getElementById('dated').value}|AREA:${document.getElementById('plant').value}`;
-        const body = `FFBL_MODERN_LOG\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
+        const body = `FFBL_V3_DATA\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
         window.location.href = `mailto:javed@example.com?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
     }
 </script>
-
 </body>
 </html>
