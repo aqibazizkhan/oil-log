@@ -1,55 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFBL SmartLog v3</title>
-    <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #202124; --accent: #fbbc04; --border: #dadce0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
-        
-        header { background: white; padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .branding { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .logo { font-weight: 800; font-size: 20px; color: var(--primary); }
-        
-        .meta-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .meta-input { border: 1px solid var(--border); border-radius: 6px; padding: 6px; font-size: 12px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFBL SmartLog v3</title>
 
-        /* The Transposed Grid */
-        .viewport { display: flex; overflow-x: auto; padding-bottom: 80px; }
-        
-        .labels-column { 
-            position: sticky; left: 0; z-index: 50; 
-            background: #fff; min-width: 140px; 
-            border-right: 2px solid var(--border);
-        }
-        .cell { height: 48px; display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid #eee; font-size: 11px; font-weight: bold; color: #5f6368; }
+<style>
+:root { --primary: #1a73e8; --bg: #f8f9fa; --text: #202124; --accent: #fbbc04; --border: #dadce0; }
 
-        .pump-column { min-width: 160px; background: white; border-right: 1px solid var(--border); transition: background 0.2s; }
-        .pump-header { background: var(--accent); height: 48px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; }
-        
-        /* Searchable Input */
-        .tag-input { width: 90%; padding: 6px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-weight: bold; }
-        .data-cell { height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
 
-        select, input[type="text"] { width: 95%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: #fafafa; }
+header {
+    background: white;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-        /* Actions */
-        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 200; }
-        .fab { width: 56px; height: 56px; border-radius: 28px; border: none; color: white; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; }
-        .btn-add { background: var(--primary); }
-        .btn-send { background: #1e8e3e; }
+.branding {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
-        datalist { font-family: sans-serif; }
-    </style>
+.logo {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.meta-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.meta-input {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 12px;
+}
+
+.viewport { display: flex; overflow-x: auto; padding-bottom: 80px; }
+
+.labels-column {
+    position: sticky;
+    left: 0;
+    z-index: 50;
+    background: #fff;
+    min-width: 140px;
+    border-right: 2px solid var(--border);
+}
+
+.cell {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 11px;
+    font-weight: bold;
+    color: #5f6368;
+}
+
+.pump-column {
+    min-width: 160px;
+    background: white;
+    border-right: 1px solid var(--border);
+}
+
+.pump-header {
+    background: var(--accent);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tag-input {
+    width: 90%;
+    padding: 6px;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.data-cell {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+select, input[type="text"] {
+    width: 95%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.fab-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 12px;
+    z-index: 200;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.btn-add { background: var(--primary); }
+.btn-send { background: #1e8e3e; }
+</style>
 </head>
+
 <body>
 
 <header>
     <div class="branding">
-        <div class="logo">FFBL <small style="color:#555; font-weight:400;">SmartLog</small></div>
-        <div style="font-size:10px; text-align:right;">MACHINERY<br>MAINTENANCE</div>
+        <div class="logo">FFBL SmartLog</div>
     </div>
+
     <div class="meta-container">
         <input type="date" id="dated" class="meta-input">
         <input type="text" id="plant" class="meta-input" placeholder="Plant Area">
@@ -60,35 +151,36 @@
 
 <div class="viewport">
     <div class="labels-column">
-        <div class="cell" style="background:#f1f3f4">EQUIPMENT TAG</div>
-        <div class="cell">1. OIL LVL INC?</div>
-        <div class="cell">2. QTY DRAIN (L)</div>
-        <div class="cell">3. COLOR</div>
-        <div class="cell">4. IMPURITIES</div>
-        <div class="cell">5. SUPPLY LINE</div>
-        <div class="cell">7. HOUSING</div>
-        <div class="cell">8. OIL TYPE</div>
-        <div class="cell">10. BREATHER</div>
-        <div class="cell">11. QTY NEW (L)</div>
-        <div class="cell">12. H-KEEPING</div>
-        <div class="cell">13. DEAD PLUG</div>
+        <div class="cell">TAG</div>
+        <div class="cell">L1</div>
+        <div class="cell">L2</div>
+        <div class="cell">L3</div>
+        <div class="cell">L4</div>
+        <div class="cell">L5</div>
+        <div class="cell">L7</div>
+        <div class="cell">L8</div>
+        <div class="cell">L10</div>
+        <div class="cell">L11</div>
+        <div class="cell">L12</div>
+        <div class="cell">L13</div>
         <div class="cell">COMMENTS</div>
     </div>
 
-    <div id="pumpContainer" style="display:flex;">
+    <div id="pumpContainer">
         <div class="pump-column">
             <div class="pump-header">
-                <input type="text" list="machineList" class="tag-input t-tag" placeholder="Search Tag...">
+                <input type="text" class="tag-input t-tag" placeholder="Tag">
             </div>
+
             <div class="data-cell"><select class="t-l1"><option>Yes</option><option>No</option></select></div>
-            <div class="data-cell"><input type="text" class="t-l2" placeholder="Qty"></div>
-            <div class="data-cell"><select class="t-l3"><option>Normal</option><option>Black</option><option>Cloudy</option></select></div>
-            <div class="data-cell"><input type="text" class="t-l4" placeholder="None"></div>
-            <div class="data-cell"><select class="t-l5"><option>Open</option><option>Chocked</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l2"></div>
+            <div class="data-cell"><select class="t-l3"><option>Normal</option><option>Black</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l4"></div>
+            <div class="data-cell"><select class="t-l5"><option>Open</option><option>Choked</option></select></div>
             <div class="data-cell"><select class="t-l7"><option>Cleaned</option><option>Flushed</option></select></div>
-            <div class="data-cell"><input type="text" class="t-l8" placeholder="Type"></div>
-            <div class="data-cell"><select class="t-l10"><option>OK</option><option>Chocked</option></select></div>
-            <div class="data-cell"><input type="text" class="t-l11" placeholder="Qty"></div>
+            <div class="data-cell"><input type="text" class="t-l8"></div>
+            <div class="data-cell"><select class="t-l10"><option>OK</option><option>Choked</option></select></div>
+            <div class="data-cell"><input type="text" class="t-l11"></div>
             <div class="data-cell"><select class="t-l12"><option>Yes</option><option>No</option></select></div>
             <div class="data-cell"><select class="t-l13"><option>Yes</option><option>No</option></select></div>
             <div class="data-cell"><input type="text" class="t-comment"></div>
@@ -96,66 +188,82 @@
     </div>
 </div>
 
-<datalist id="machineList">
-    <option value="GT-101-A"> <option value="GT-101-B"> <option value="G-101-A"> <option value="G-101-B">
-    <option value="G-101-C"> <option value="G-101-D"> <option value="GT-104-A"> <option value="GT-104-B">
-    <option value="G-202-A"> <option value="G-202-B"> <option value="G-202-C"> <option value="G-205-A">
-    <option value="G-205-B"> <option value="G-206-A"> <option value="G-206-B"> <option value="G-206-C">
-    <option value="G-201-A"> <option value="G-201-B"> <option value="G-201-C"> <option value="GHT-201-A">
-    <option value="GHT-201-B"> <option value="GT-1004-B"> <option value="GT-1005-B"> <option value="G-1005-A">
-    <option value="G-1005-B"> <option value="G-207"> <option value="G-403-A"> <option value="G-403-B">
-    <option value="GT-418-A"> <option value="G-418-A"> <option value="G418-B"> <option value="CMP-4019-A">
-    <option value="CMP-4019-S"> <option value="G-106-A"> <option value="G-106-B"> <option value="GT-106-A">
-    <option value="G-405-A"> <option value="G-405-B"> <option value="G-405-C"> <option value="G-405-D">
-    <option value="G-405-E"> <option value="G-405-F"> <option value="G-406-A"> <option value="G-406-B">
-    <option value="G-407"> <option value="G-419"> <option value="G-303-A"> <option value="G-303-B">
-    <option value="G-304-A"> <option value="G-304-B"> <option value="GT-309-A"> <option value="GT-309-B">
-    <option value="G-309-A"> <option value="G-309-B"> <option value="G-309-C"> <option value="G-309-F">
-    <option value="GT-311-A"> <option value="GT-312-A"> <option value="GT-312-B"> <option value="Vacc. Dehyd Pump">
-    <option value="G-301-A"> <option value="G-301-B"> <option value="G-302-A"> <option value="G-302-B">
-    <option value="GT-313-A"> <option value="GT-313-B"> <option value="GT-314-A"> <option value="GT-314-B">
-    <option value="GT-417-A"> <option value="G-417-A"> <option value="G-417-B">
-</datalist>
-
 <div class="fab-container">
     <button class="fab btn-add" onclick="addNewColumn()">+</button>
     <button class="fab btn-send" onclick="submitLog()">✓</button>
 </div>
 
 <script>
-    document.getElementById('dated').valueAsDate = new Date();
+document.getElementById('dated').valueAsDate = new Date();
 
-    function addNewColumn() {
-        const container = document.getElementById('pumpContainer');
-        const firstCol = container.querySelector('.pump-column');
-        const newCol = firstCol.cloneNode(true);
-        newCol.querySelectorAll('input').forEach(i => i.value = "");
-        newCol.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-        container.appendChild(newCol);
-        newCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-    }
+function addNewColumn() {
+    const container = document.getElementById('pumpContainer');
+    const firstCol = container.querySelector('.pump-column');
+    const newCol = firstCol.cloneNode(true);
 
-    function submitLog() {
-        const columns = document.querySelectorAll('.pump-column');
-        let batch = [];
-        columns.forEach(col => {
-            let tag = col.querySelector('.t-tag').value;
-            if(tag) {
-                batch.push({
-                    Tag: tag, L1: col.querySelector('.t-l1').value, L2: col.querySelector('.t-l2').value,
-                    L3: col.querySelector('.t-l3').value, L4: col.querySelector('.t-l4').value,
-                    L5: col.querySelector('.t-l5').value, L7: col.querySelector('.t-l7').value,
-                    L8: col.querySelector('.t-l8').value, L10: col.querySelector('.t-l10').value,
-                    L11: col.querySelector('.t-l11').value, L12: col.querySelector('.t-l12').value,
-                    L13: col.querySelector('.t-l13').value, Comment: col.querySelector('.t-comment').value
-                });
-            }
-        });
-        if(batch.length === 0) return;
-        const meta = `DATE:${document.getElementById('dated').value}|AREA:${document.getElementById('plant').value}`;
-        const body = `FFBL_V3_DATA\n\n${meta}\n\nDATA:${JSON.stringify(batch)}`;
-        window.location.href = `mailto:aqib.khan@ffc.com.pk?subject=OilLogBatch&body=${encodeURIComponent(body)}`;
-    }
+    newCol.querySelectorAll('input').forEach(i => i.value = "");
+    newCol.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+
+    container.appendChild(newCol);
+}
+
+function submitLog() {
+
+    const columns = document.querySelectorAll('.pump-column');
+    let batch = [];
+
+    columns.forEach(col => {
+        let tag = col.querySelector('.t-tag').value;
+
+        if (tag) {
+            batch.push({
+                Tag: tag,
+                L1: col.querySelector('.t-l1').value,
+                L2: col.querySelector('.t-l2').value,
+                L3: col.querySelector('.t-l3').value,
+                L4: col.querySelector('.t-l4').value,
+                L5: col.querySelector('.t-l5').value,
+                L7: col.querySelector('.t-l7').value,
+                L8: col.querySelector('.t-l8').value,
+                L10: col.querySelector('.t-l10').value,
+                L11: col.querySelector('.t-l11').value,
+                L12: col.querySelector('.t-l12').value,
+                L13: col.querySelector('.t-l13').value,
+                Comment: col.querySelector('.t-comment').value
+            });
+        }
+    });
+
+    const payload = {
+        date: document.getElementById('dated').value,
+        area: document.getElementById('plant').value,
+        technician: document.getElementById('tech').value,
+        shift: document.getElementById('shift').value,
+        data: batch
+    };
+
+    console.log("Sending payload:", payload);
+
+    fetch("PASTE_YOUR_POWER_AUTOMATE_HTTP_URL_HERE", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => {
+        if (res.ok) {
+            alert("Submitted successfully");
+        } else {
+            alert("Submission failed");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Network error");
+    });
+}
 </script>
+
 </body>
 </html>
